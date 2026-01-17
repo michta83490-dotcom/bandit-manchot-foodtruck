@@ -1,472 +1,322 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>🎰 La Boîte à Nems — Jeu</title>
-
+  <title>La Boîte à Nems – Jeu</title>
   <style>
-    :root{
-      --bg:#111;
-      --card:rgba(255,255,255,.06);
-      --stroke:rgba(255,255,255,.12);
-      --txt:#fff;
-      --muted:rgba(255,255,255,.78);
-      --warn:#ff5a5a;
-      --ok:#4ee07a;
-      --btn:#f2f2f2;
-      --btn2:#2ecc71;
-      --shadow:0 16px 50px rgba(0,0,0,.55);
-    }
-    *{box-sizing:border-box}
     body{
-      margin:0;
-      min-height:100vh;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:24px 12px;
-      background:var(--bg);
-      color:var(--txt);
-      font-family:Arial, sans-serif;
+      font-family: Arial, sans-serif;
+      background:#111; color:#fff; margin:0; padding:24px 12px;
       text-align:center;
     }
-    .wrap{width:min(700px, 100%)}
-    h1{
-      margin:0 0 8px 0;
-      letter-spacing:.04em;
-      font-size:clamp(26px, 4vw, 40px);
-      text-transform:uppercase;
-    }
-    .sub{
-      margin:0 0 16px 0;
-      color:var(--muted);
-      font-size:clamp(14px, 2.2vw, 18px);
-    }
+    h1{ margin:10px 0 6px; letter-spacing:1px; }
+    .sub{ opacity:.9; margin:0 0 18px; }
     .card{
-      background:var(--card);
-      border:1px solid var(--stroke);
-      border-radius:16px;
-      padding:18px 14px;
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(6px);
+      max-width:560px; margin:0 auto; padding:18px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.35);
     }
-
-    .reels{
-      display:flex;
-      justify-content:center;
-      gap:16px;
-      margin:14px 0 12px 0;
+    .reels{ display:flex; gap:14px; justify-content:center; margin:10px 0 14px; }
+    .reel{
+      width:86px; height:86px;
+      display:flex; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(255,255,255,.18);
+      border-radius:14px;
+      font-size:44px;
       user-select:none;
     }
-    .reel{
-      width:92px;
-      height:92px;
-      border-radius:18px;
-      border:1px solid var(--stroke);
-      background:rgba(0,0,0,.25);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:54px;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.06);
-    }
-
-    .spinRow{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-      margin:8px 0 10px 0;
-    }
-    .spinBtn{
-      appearance:none;
-      border:0;
-      cursor:pointer;
-      padding:12px 22px;
-      border-radius:12px;
-      font-size:18px;
-      font-weight:700;
-      background: #f7c948;
-      color:#222;
-      box-shadow: 0 10px 26px rgba(0,0,0,.35);
-    }
-    .spinBtn:disabled{
-      opacity:.55;
-      cursor:not-allowed;
-    }
-
-    .msg{
-      margin:6px 0 0 0;
-      min-height:48px;
-      font-size:clamp(15px, 2.4vw, 18px);
-      font-weight:700;
-    }
-    .msg.ok{color:var(--ok)}
-    .msg.warn{color:var(--warn)}
-    .tiny{
-      margin-top:10px;
-      color:rgba(255,255,255,.78);
-      font-size:13px;
-      line-height:1.35;
-    }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      flex-wrap:wrap;
-      margin-top:14px;
-    }
     .btn{
-      display:inline-block;
-      padding:12px 16px;
-      border-radius:12px;
-      text-decoration:none;
-      font-weight:700;
-      border:1px solid rgba(255,255,255,.18);
-      background:var(--btn);
-      color:#222;
+      display:inline-block; border:0; cursor:pointer;
+      padding:12px 18px; border-radius:10px;
+      font-size:18px; font-weight:700;
+    }
+    .spin{ background:#f5c400; color:#111; min-width:140px; }
+    .spin:disabled{ opacity:.55; cursor:not-allowed; }
+    .rowbtns{ display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:14px;}
+    .linkbtn{
+      background:#eee; color:#111; text-decoration:none;
+      padding:12px 14px; border-radius:10px; font-weight:700;
       min-width:220px;
     }
-    .btn.green{
-      background:var(--btn2);
-      color:#0b2b15;
-      border-color: rgba(0,0,0,.08);
-    }
-
-    .legend{
-      margin-top:14px;
-      text-align:left;
-      display:inline-block;
-      width:min(520px, 100%);
-      padding:12px 12px;
-      border-radius:12px;
-      border:1px solid var(--stroke);
-      background:rgba(0,0,0,.18);
-      font-size:14px;
-      line-height:1.45;
-    }
-    .legend b{color:#fff}
-    .hr{
-      height:1px;
-      background:rgba(255,255,255,.12);
-      margin:10px 0;
-    }
-
+    .green{ background:#28c76f; color:#081b10; }
+    .msg{ margin:14px 0 0; font-size:18px; font-weight:700; }
+    .msg.ok{ color:#66ff9a; }
+    .msg.no{ color:#ff6a6a; }
+    .small{ font-size:13px; opacity:.9; margin-top:10px; line-height:1.35; text-align:left; }
+    .legend{ margin-top:14px; text-align:left; font-size:14px; }
+    .hr{ height:1px; background:rgba(255,255,255,.12); margin:12px 0; }
     .claimBox{
-      margin-top:12px;
-      padding:12px 12px;
-      border-radius:12px;
-      border:1px solid rgba(78,224,122,.35);
-      background:rgba(78,224,122,.10);
-      display:none;
+      margin-top:12px; padding:10px 12px; border-radius:12px;
+      background:rgba(0,0,0,.35);
+      border:1px dashed rgba(255,255,255,.25);
       text-align:left;
-      width:min(520px, 100%);
+      display:none;
     }
-    .claimBox strong{display:block;margin-bottom:6px}
-    .codeLine{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:18px;
-      letter-spacing:.08em;
-      margin:6px 0 10px 0;
+    .code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+      font-size:18px; font-weight:900; letter-spacing:1px;
+      padding:8px 10px; background:rgba(255,255,255,.08);
+      border-radius:10px; display:inline-block;
     }
-    .claimBtn{
-      appearance:none;border:0;cursor:pointer;
-      padding:10px 14px;border-radius:12px;
-      font-weight:800;background:#ffffff;color:#111;
-      border:1px solid rgba(0,0,0,.1);
-    }
-
-    @media (max-width:420px){
-      .reel{width:78px;height:78px;font-size:48px}
-      .btn{min-width:170px}
-    }
+    .tiny{ font-size:12px; opacity:.85; }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <h1>🎰 LA BOÎTE À NEMS 🎰</h1>
-    <p class="sub">Joue pour le fun… et parfois un cadeau 😄</p>
+  <h1>🎰 LA BOÎTE À NEMS 🎰</h1>
+  <div class="sub">Joue pour le fun… et parfois un cadeau 😋</div>
 
-    <div class="card">
-      <div class="reels" aria-label="Machine à sous">
-        <div class="reel" id="r1">🍒</div>
-        <div class="reel" id="r2">⭐</div>
-        <div class="reel" id="r3">7️⃣</div>
-      </div>
+  <div class="card">
+    <div class="reels">
+      <div class="reel" id="reel1">🍒</div>
+      <div class="reel" id="reel2">⭐</div>
+      <div class="reel" id="reel3">7️⃣</div>
+    </div>
 
-      <div class="spinRow">
-        <button class="spinBtn" id="spinBtn" onclick="spin()">SPIN</button>
-        <div class="msg" id="msg"></div>
-      </div>
+    <button class="btn spin" id="spinBtn" onclick="spin()">SPIN</button>
 
-      <div class="actions">
-        <a class="btn" id="discoverBtn" href="https://la-boite-a-nems-le-muy.eatbu.com" target="_blank" rel="noopener">
-          Découvrir La Boîte à Nems
-        </a>
-        <a class="btn green" id="orderBtn" href="tel:+33782549660">
-          Commander (téléphone)
-        </a>
-        <a class="btn green" id="waBtn" href="https://wa.me/33782549660?text=Bonjour%20La%20Bo%C3%AEte%20%C3%A0%20Nems%20!%20Je%20veux%20passer%20une%20commande%20%F0%9F%98%8A" target="_blank" rel="noopener">
-          Commander (WhatsApp)
-        </a>
-      </div>
+    <div id="msg" class="msg"></div>
 
-      <div class="claimBox" id="claimBox">
-        <strong>🎁 Réclamation au camion</strong>
-        <div>Montre ce code (écran ou capture) :</div>
-        <div class="codeLine" id="claimCode">—</div>
-        <div>Valable jusqu’à : <b id="claimUntil">—</b> (10 min)</div>
-        <div class="tiny">Astuce : si tu commandes par téléphone/WhatsApp, envoie la capture de ce code.</div>
-      </div>
+    <div class="rowbtns">
+      <a class="linkbtn" href="https://la-boite-a-nems-le-muy.eatbu.com" target="_blank" rel="noopener">Découvrir La Boîte à Nems</a>
+      <a class="linkbtn green" href="tel:+33782549660">Commander (téléphone)</a>
+      <a class="linkbtn green" href="https://wa.me/33782549660" target="_blank" rel="noopener">Commander (WhatsApp)</a>
+    </div>
 
-      <div class="legend">
-        <b>Légende des gains</b><br>
-        🍒🍒🍒 = 1 boisson soft<br>
-        ⭐⭐⭐ = 1 box apéro 8 pièces<br>
-        7️⃣7️⃣7️⃣ = 1 Pad thaï traditionnel nature
-        <div class="hr"></div>
-        ⏳ Si tu gagnes : tu ne peux plus rejouer pendant <b>24h</b> sur ce téléphone.<br>
-        💶 Commande minimum : <b>30€</b>.<br>
-        🧾 Cadeau remis uniquement lors d’une commande (selon disponibilité).<br>
-        ⏱️ Gain valable <b>48h</b> à compter du gain.<br>
-        🎫 Code de réclamation généré (valable <b>10 min</b>) pour limiter les profiteurs.
-      </div>
+    <div class="legend">
+      <div><b>Légende des gains</b></div>
+      <div>🍒🍒🍒 = 1 boisson soft</div>
+      <div>⭐⭐⭐ = 1 box apéro 8 pièces</div>
+      <div>7️⃣7️⃣7️⃣ = 1 Pad thaï traditionnel nature</div>
+    </div>
 
-      <p class="tiny">
-        ⚠️ Sans serveur, le blocage 24h est basé sur le téléphone (localStorage).<br>
-        Si quelqu’un efface ses données navigateur, il peut tricher. Pour bloquer à 100%, il faut un système serveur.
-      </p>
+    <div class="hr"></div>
+
+    <div class="small">
+      🧾 Commande minimum : <b>30€</b>.<br>
+      🎁 Cadeau remis uniquement lors d’une commande (selon disponibilité).<br>
+      ⏳ Gain valable <b>48h</b> à compter du gain.<br>
+      ⛔ Si tu gagnes : tu ne peux plus rejouer pendant <b>24h</b> sur ce téléphone.<br>
+      🔐 Un code de réclamation est généré (valable <b>10 min</b>) pour limiter les profiteurs.
+    </div>
+
+    <div id="claimBox" class="claimBox">
+      <div><b>🎁 Code de réclamation</b></div>
+      <div class="code" id="claimCode">----</div>
+      <div class="tiny" id="claimInfo"></div>
     </div>
   </div>
 
-  <script>
-    /***********************
-     * RÉGLAGES (TOI TU CHANGES ICI)
-     ***********************/
-    const SITE_URL = "https://la-boite-a-nems-le-muy.eatbu.com";
-    const TEL = "+33782549660";
+<script>
+  // ===== Réglages =====
+  // Probabilités de gain :
+  // Soft (🍒🍒🍒) : 1 sur 5
+  // Box (⭐⭐⭐) : 1 sur 8
+  // Pad (7️⃣7️⃣7️⃣) : 1 sur 20
+  // Le pad est donc très rare.
+  const PHONE_LOCK_HOURS_AFTER_WIN = 24;
+  const GAIN_VALID_HOURS = 48;
+  const CLAIM_CODE_VALID_MIN = 10;
+  const MIN_ORDER_EUR = 30;
 
-    // Probabilités (gain indépendant de l'animation)
-    // Boisson : 1/5 ; Box : 1/8 ; Pad : 1/20 (très rare)
-    const PROBA_SOFT = 5;
-    const PROBA_BOX  = 8;
-    const PROBA_PAD  = 20;
+  // ===== Symboles =====
+  const CHERRY = "🍒";
+  const STAR   = "⭐";
+  const SEVEN  = "7️⃣";
+  const SYMBOLS = [CHERRY, STAR, SEVEN, "🍋", "🔔"]; // extras juste pour le visuel
 
-    // Anti-profiteurs
-    const LOCK_HOURS_AFTER_WIN = 24;     // stop jeu 24h si gain
-    const CLAIM_CODE_MINUTES = 10;       // code réclamation valable 10 min
-    const GAIN_VALID_HOURS = 48;         // gain valable 48h
+  const reels = [
+    document.getElementById("reel1"),
+    document.getElementById("reel2"),
+    document.getElementById("reel3")
+  ];
+  const spinBtn  = document.getElementById("spinBtn");
+  const msgEl    = document.getElementById("msg");
+  const claimBox = document.getElementById("claimBox");
+  const claimCodeEl = document.getElementById("claimCode");
+  const claimInfoEl = document.getElementById("claimInfo");
 
-    /***********************
-     * SYMBOLES
-     ***********************/
-    const SYM_CHERRY = "🍒";
-    const SYM_STAR   = "⭐";
-    const SYM_SEVEN  = "7️⃣";
+  function nowMs(){ return Date.now(); }
 
-    const SYMBOLS = [SYM_CHERRY, SYM_STAR, SYM_SEVEN];
+  function setMsg(text, kind){
+    msgEl.textContent = text;
+    msgEl.className = "msg " + (kind || "");
+  }
 
-    // Clefs stockage
-    const K_LAST_WIN_TS = "lb_nems_last_win_ts";
-    const K_LAST_GAIN   = "lb_nems_last_gain";
-    const K_CLAIM_CODE  = "lb_nems_claim_code";
-    const K_CLAIM_UNTIL = "lb_nems_claim_until";
+  function lockUntilKey(){ return "lbn_lock_until"; }
+  function winInfoKey(){ return "lbn_win_info"; }
 
-    const el = (id) => document.getElementById(id);
+  function getLockUntil(){
+    const v = localStorage.getItem(lockUntilKey());
+    return v ? parseInt(v, 10) : 0;
+  }
+  function setLockHours(h){
+    const until = nowMs() + h*60*60*1000;
+    localStorage.setItem(lockUntilKey(), String(until));
+  }
 
-    // Liens
-    el("discoverBtn").href = SITE_URL;
+  function randInt(n){ return Math.floor(Math.random()*n); }
 
-    /***********************
-     * UTILITAIRES
-     ***********************/
-    function nowMs(){ return Date.now(); }
+  // Choisit un gain selon les proba demandées
+  function pickWinType(){
+    // On teste le plus rare d'abord pour éviter qu'il soit “mangé” par les autres
+    if (randInt(20) === 0) return "PAD";   // 1/20
+    if (randInt(😎  === 0) return "BOX";   // 1/8
+    if (randInt(5)  === 0) return "SOFT";  // 1/5
+    return null; // perdu
+  }
 
-    function formatTime(ts){
-      const d = new Date(ts);
-      const hh = String(d.getHours()).padStart(2,"0");
-      const mm = String(d.getMinutes()).padStart(2,"0");
-      return ${hh}:${mm};
-    }
+  function makeClaimCode(){
+    // code court, facile à lire au camion
+    // ex : NEMS-7K3F9Q
+    const chars = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
+    let s = "";
+    for (let i=0;i<6;i++) s += chars[randInt(chars.length)];
+    return "NEMS-" + s;
+  }
 
-    function hoursToMs(h){ return h * 60 * 60 * 1000; }
-    function minsToMs(m){ return m * 60 * 1000; }
+  function showClaim(code, createdAt){
+    const expiresAt = createdAt + CLAIM_CODE_VALID_MIN*60*1000;
+    const mins = CLAIM_CODE_VALID_MIN;
+    claimCodeEl.textContent = code;
+    claimInfoEl.textContent = "Valable " + mins + " min. Montre ce code au camion au moment du retrait.";
+    claimBox.style.display = "block";
 
-    function setMsg(text, type){
-      const m = el("msg");
-      m.className = "msg" + (type ? (" " + type) : "");
-      m.textContent = text;
-    }
-
-    function setReels(a,b,c){
-      el("r1").textContent = a;
-      el("r2").textContent = b;
-      el("r3").textContent = c;
-    }
-
-    function randomSymbol(){
-      return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-    }
-
-    // Eviter de tomber sur un triple gagnant quand c'est "perdu"
-    function randomNonWinningTriplet(){
-      while(true){
-        const a = randomSymbol();
-        const b = randomSymbol();
-        const c = randomSymbol();
-        const triple = (a === b && b === c);
-        if(!triple) return [a,b,c];
-        // si triple, on relance (ça arrive peu)
+    // auto-masquage si expiré
+    const t = setInterval(() => {
+      if (nowMs() > expiresAt){
+        clearInterval(t);
+        claimBox.style.display = "none";
       }
-    }
+    }, 1000);
+  }
 
-    function isLocked(){
-      const lastWin = Number(localStorage.getItem(K_LAST_WIN_TS) || 0);
-      if(!lastWin) return false;
-      return (nowMs() - lastWin) < hoursToMs(LOCK_HOURS_AFTER_WIN);
-    }
+  function saveWinInfo(type){
+    const createdAt = nowMs();
+    const info = {
+      type,
+      createdAt,
+      validUntil: createdAt + GAIN_VALID_HOURS*60*60*1000,
+      claimCode: makeClaimCode(),
+      claimUntil: createdAt + CLAIM_CODE_VALID_MIN*60*1000
+    };
+    localStorage.setItem(winInfoKey(), JSON.stringify(info));
+    return info;
+  }
 
-    function lockRemaining(){
-      const lastWin = Number(localStorage.getItem(K_LAST_WIN_TS) || 0);
-      const end = lastWin + hoursToMs(LOCK_HOURS_AFTER_WIN);
-      const ms = Math.max(0, end - nowMs());
-      const h = Math.floor(ms / 3600000);
-      const m = Math.floor((ms % 3600000) / 60000);
-      if(h <= 0) return ${m} min;
-      return ${h}h${String(m).padStart(2,"0")};
-    }
+  function clearClaim(){
+    claimBox.style.display = "none";
+    localStorage.removeItem(winInfoKey());
+  }
 
-    function generateClaimCode(){
-      // simple + lisible (6 chiffres)
-      const n = Math.floor(100000 + Math.random() * 900000);
-      return String(n);
-    }
-
-    function showClaimBox(code, untilTs){
-      el("claimBox").style.display = "block";
-      el("claimCode").textContent = code;
-      el("claimUntil").textContent = formatTime(untilTs);
-    }
-
-    function hideClaimBox(){
-      el("claimBox").style.display = "none";
-    }
-
-    /***********************
-     * SPIN
-     ***********************/
-    let spinning = false;
-    let spinTimer = null;
-
-    function animateSpin(durationMs){
-      const start = nowMs();
-      return new Promise((resolve) => {
-        spinTimer = setInterval(() => {
-          setReels(randomSymbol(), randomSymbol(), randomSymbol());
-          if(nowMs() - start >= durationMs){
-            clearInterval(spinTimer);
-            spinTimer = null;
-            resolve();
-          }
-        }, 70);
-      });
-    }
-
-    function decideOutcome(){
-      // IMPORTANT : ordre du plus rare au plus fréquent
-      if (Math.floor(Math.random() * PROBA_PAD) === 0)  return "PAD";   // 1/20
-      if (Math.floor(Math.random() * PROBA_BOX) === 0)  return "BOX";   // 1/8
-      if (Math.floor(Math.random() * PROBA_SOFT) === 0) return "SOFT";  // 1/5
-      return null; // perdu
-    }
-
-    function spin(){
-      if(spinning) return;
-
-      // blocage après gain 24h
-      if(isLocked()){
-        setMsg(⛔ Tu as déjà gagné récemment. Reviens dans ${lockRemaining()} 🙂, "warn");
+  function maybeShowExistingWin(){
+    const raw = localStorage.getItem(winInfoKey());
+    if (!raw) return;
+    try{
+      const info = JSON.parse(raw);
+      if (nowMs() > info.validUntil){
+        clearClaim();
         return;
       }
-
-      spinning = true;
-      el("spinBtn").disabled = true;
-      hideClaimBox();
-      setMsg("🎰 Ça tourne…", "");
-
-      animateSpin(950).then(() => {
-        const outcome = decideOutcome();
-
-        if(outcome === "SOFT"){
-          setReels(SYM_CHERRY, SYM_CHERRY, SYM_CHERRY);
-          win("🍒🍒🍒", "1 boisson soft");
-        } else if(outcome === "BOX"){
-          setReels(SYM_STAR, SYM_STAR, SYM_STAR);
-          win("⭐⭐⭐", "1 box apéro 8 pièces");
-        } else if(outcome === "PAD"){
-          setReels(SYM_SEVEN, SYM_SEVEN, SYM_SEVEN);
-          win("7️⃣7️⃣7️⃣", "1 Pad thaï traditionnel nature");
-        } else {
-          const [a,b,c] = randomNonWinningTriplet();
-          setReels(a,b,c);
-          setMsg("😅 Pas gagné cette fois… retente quand tu veux !", "warn");
-        }
-
-        spinning = false;
-        el("spinBtn").disabled = false;
-      });
-    }
-
-    function win(combo, label){
-      // Enregistrer gain + bloquer 24h
-      localStorage.setItem(K_LAST_WIN_TS, String(nowMs()));
-      localStorage.setItem(K_LAST_GAIN, label);
-
-      // Code réclamation valable 10 min
-      const code = generateClaimCode();
-      const untilTs = nowMs() + minsToMs(CLAIM_CODE_MINUTES);
-      localStorage.setItem(K_CLAIM_CODE, code);
-      localStorage.setItem(K_CLAIM_UNTIL, String(untilTs));
-
-      setMsg🎉 GAGNÉ ! ${label} (${combo})`, "ok");
-
-      // Afficher code + validité (et rappeler les 48h)
-      showClaimBox(code, untilTs);
-
-      // Petit rappel en plus (48h) directement dans le message secondaire
-      const gainUntil = nowMs() + hoursToMs(GAIN_VALID_HOURS);
-      const txt =🎉 GAGNÉ ! ${label} — valable 48h (jusqu’au ${new Date(gainUntil).toLocaleString("fr-FR")}).`;
-      // On garde le msg court + box pour le code
-      // (si tu veux, je peux mettre ce détail directement sous le bouton)
-    }
-
-    /***********************
-     * Au chargement : si un code existe encore valide, on le ré-affiche
-     ***********************/
-    (function init(){
-      const code = localStorage.getItem(K_CLAIM_CODE);
-      const until = Number(localStorage.getItem(K_CLAIM_UNTIL) || 0);
-      const gain = localStorage.getItem(K_LAST_GAIN);
-
-      if(code && until && nowMs() < until){
-        // Si la personne a gagné récemment et revient, on lui ré-affiche le code encore valide
-        showClaimBox(code, until);
-        if(gain){
-          setMsg🎉 Tu as gagné : ${gain}. Montre le code ci-dessous au camion.`, "ok");
-        }
+      // montre uniquement si le code est encore valide (10 min)
+      if (nowMs() <= info.claimUntil){
+        showClaim(info.claimCode, info.createdAt);
       } else {
-        // si expiré, on nettoie
-        localStorage.removeItem(K_CLAIM_CODE);
-        localStorage.removeItem(K_CLAIM_UNTIL);
+        claimBox.style.display = "none";
       }
+    }catch(e){
+      clearClaim();
+    }
+  }
 
-      // Met à jour les liens commande (au cas où)
-      el("orderBtn").href = tel:${TEL};
-      el("waBtn").href = https://wa.me/${TEL.replace("+","")}?text=${encodeURIComponent("Bonjour La Boîte à Nems ! Je veux passer une commande 😊")};
-    })();
-  </script>
+  // ===== ANIMATION “ça tourne” =====
+  function animateReels(durationMs, intervalMs){
+    return new Promise(resolve => {
+      const start = nowMs();
+      const timer = setInterval(() => {
+        reels[0].textContent = SYMBOLS[randInt(SYMBOLS.length)];
+        reels[1].textContent = SYMBOLS[randInt(SYMBOLS.length)];
+        reels[2].textContent = SYMBOLS[randInt(SYMBOLS.length)];
+        if (nowMs() - start >= durationMs){
+          clearInterval(timer);
+          resolve();
+        }
+      }, intervalMs);
+    });
+  }
+
+  // Met le résultat final (3 mêmes si gain, sinon pas pareil)
+  function setFinalSymbols(winType){
+    if (winType === "SOFT"){
+      reels.forEach(r => r.textContent = CHERRY);
+    } else if (winType === "BOX"){
+      reels.forEach(r => r.textContent = STAR);
+    } else if (winType === "PAD"){
+      reels.forEach(r => r.textContent = SEVEN);
+    } else {
+      // perdu : 3 symboles non identiques (autant que possible)
+      const a = SYMBOLS[randInt(SYMBOLS.length)];
+      let b = SYMBOLS[randInt(SYMBOLS.length)];
+      let c = SYMBOLS[randInt(SYMBOLS.length)];
+      // évite au max les triples
+      if (b === a) b = STAR;
+      if (c === a || c === b) c = SEVEN;
+      reels[0].textContent = a;
+      reels[1].textContent = b;
+      reels[2].textContent = c;
+    }
+  }
+
+  async function spin(){
+    // blocage si gagné récemment
+    const lockUntil = getLockUntil();
+    if (nowMs() < lockUntil){
+      const minsLeft = Math.ceil((lockUntil - nowMs())/60000);
+      setMsg("⛔ Déjà gagnant récemment. Reviens dans " + minsLeft + " min.", "no");
+      return;
+    }
+
+    // reset messages
+    setMsg("", "");
+    claimBox.style.display = "none";
+
+    spinBtn.disabled = true;
+
+    // animation
+    await animateReels(900, 70);
+
+    // résultat
+    const winType = pickWinType();
+    setFinalSymbols(winType);
+
+    if (!winType){
+      setMsg("😋 Pas gagné cette fois… retente quand tu veux !", "no");
+      spinBtn.disabled = false;
+      return;
+    }
+
+    // gagné : lock 24h sur ce tel + crée code de réclamation 10 min + affiche
+    setLockHours(PHONE_LOCK_HOURS_AFTER_WIN);
+    const info = saveWinInfo(winType);
+
+    if (winType === "SOFT"){
+      setMsg("🎉 GAGNÉ ! 1 boisson soft (commande min " + MIN_ORDER_EUR + "€)", "ok");
+    } else if (winType === "BOX"){
+      setMsg("🎉 GAGNÉ ! 1 box apéro 8 pièces (commande min " + MIN_ORDER_EUR + "€)", "ok");
+    } else {
+      setMsg("🎉 GAGNÉ ! 1 Pad thaï nature (commande min " + MIN_ORDER_EUR + "€)", "ok");
+    }
+
+    showClaim(info.claimCode, info.createdAt);
+    spinBtn.disabled = false;
+  }
+
+  // Au chargement : si un gain encore valable existe, on peut afficher le code s'il est encore dans les 10 min
+  maybeShowExistingWin();
+</script>
 </body>
 </html>
