@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>La Boîte à Nems - Bandit Manchot</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>La Boîte à Nems - Jeu</title>
   <style>
     body{
       font-family: Arial, sans-serif;
@@ -13,150 +13,99 @@
       margin:0;
       padding:24px 12px;
     }
-    h1{ margin:10px 0 6px; letter-spacing:1px; }
-    .sub{ opacity:.9; margin:0 0 18px; }
-
+    h1{margin:0 0 8px;font-size:34px;letter-spacing:1px}
+    .sub{opacity:.9;margin:0 0 18px}
     .card{
-      max-width:720px;
+      max-width:560px;
       margin:0 auto;
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.12);
       border-radius:16px;
-      padding:18px 14px;
+      padding:18px 16px;
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
-
     .reels{
       display:flex;
-      justify-content:center;
       gap:14px;
-      margin:12px 0 14px;
+      justify-content:center;
+      margin:10px 0 14px;
     }
-
     .reel{
-      width:92px;
-      height:92px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.35);
-      border:1px solid rgba(255,255,255,.18);
+      width:110px;height:110px;
       border-radius:14px;
-      user-select:none;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(255,255,255,.14);
+      display:flex;align-items:center;justify-content:center;
+      font-size:56px;
+      position:relative;
+      overflow:hidden;
     }
-
-    .sym{
-      width:72px; height:72px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:46px;
-      border-radius:12px;
-      font-weight:900;
-    }
-
-    .cherry{ background:rgba(255,0,0,.12); }
-    .cherry::before{ content:"\1F352"; } /* 🍒 */
-
-    .star{ background:rgba(255,215,0,.12); }
-    .star::before{ content:"\2B50"; } /* ⭐ */
-
-    .seven{
-      background:rgba(0,140,255,.18);
-      color:#dff2ff;
-      font-size:44px;
-      box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
-    }
-    .seven::before{ content:"7"; }
-
-    .lemon{ background:rgba(255,255,0,.10); }
-    .lemon::before{ content:"\1F34B"; } /* 🍋 */
-
-    .bell{ background:rgba(255,255,255,.08); }
-    .bell::before{ content:"\1F514"; } /* 🔔 */
-
-    .clover{ background:rgba(0,255,0,.10); }
-    .clover::before{ content:"\1F340"; } /* 🍀 */
-
+    .sym{transition:transform .12s ease, filter .12s ease;}
+    .spinning .sym{filter:blur(2px);transform:scale(1.08)}
     .btn{
       border:0;
-      padding:12px 18px;
       border-radius:12px;
+      padding:14px 22px;
       font-size:18px;
       cursor:pointer;
+      font-weight:700;
     }
     .spin{
-      background:#f4c542;
+      background:#f3c623;
       color:#111;
-      font-weight:900;
-      min-width:140px;
+      box-shadow:0 8px 18px rgba(243,198,35,.22);
+      width:170px;
     }
-    .spin:disabled{ opacity:.55; cursor:not-allowed; }
-
+    .spin:disabled{opacity:.55;cursor:not-allowed}
     .msg{
-      margin-top:14px;
+      margin:12px 0 6px;
+      min-height:26px;
       font-size:18px;
-      min-height:28px;
-      font-weight:800;
+      font-weight:700;
     }
-    .ok{ color:#64f58d; }
-    .no{ color:#ff6b6b; }
-
+    .msg.ok{color:#60ff85}
+    .msg.no{color:#ff6b6b}
+    .codeBox{
+      display:none;
+      margin:10px auto 0;
+      max-width:420px;
+      padding:12px 12px;
+      border-radius:12px;
+      background:rgba(0,0,0,.30);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    #claimCode{font-size:20px;letter-spacing:1px}
+    #countdown{margin-top:8px;font-size:15px;font-weight:700}
     .rowBtns{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      justify-content:center;
+      display:flex;gap:10px;flex-wrap:wrap;justify-content:center;
       margin-top:14px;
     }
-    .linkBtn{
-      background:#e9e9e9;
-      color:#111;
-      font-weight:800;
-    }
-    .greenBtn{
-      background:#29c24a;
-      color:#0b1a0f;
-      font-weight:900;
-    }
-
-    .small{
-      margin-top:12px;
-      font-size:14px;
-      opacity:.92;
+    .linkBtn{background:#e9e9e9;color:#111}
+    .greenBtn{background:#3fd36f;color:#111}
+    .legend{
       text-align:left;
-      max-width:620px;
-      margin-left:auto;
-      margin-right:auto;
+      margin-top:14px;
+      padding-top:12px;
+      border-top:1px solid rgba(255,255,255,.12);
+      font-size:14px;
       line-height:1.35;
+      opacity:.95;
     }
-    .legendTitle{ font-weight:900; margin-top:6px; }
-    .hr{ height:1px; background:rgba(255,255,255,.15); margin:10px 0; }
-
-    .codeBox{
-      margin-top:10px;
-      display:none;
-      padding:10px 12px;
-      border-radius:12px;
-      background:rgba(0,0,0,.35);
-      border:1px dashed rgba(255,255,255,.25);
-      max-width:440px;
-      margin-left:auto;
-      margin-right:auto;
-    }
-    .codeBox b{ font-size:18px; letter-spacing:1px; }
+    .legend b{opacity:1}
+    .tiny{opacity:.85;font-size:13px}
+    .hr{height:1px;background:rgba(255,255,255,.12);margin:10px 0}
   </style>
 </head>
 
 <body>
-  <h1>LA BOITE A NEMS</h1>
-  <div class="sub">Joue pour le fun... et parfois un cadeau</div>
+  <h1>🎰 LA BOÎTE À NEMS 🎰</h1>
+  <p class="sub">Joue pour le fun… et parfois un cadeau 😋</p>
 
   <div class="card">
-    <div class="reels">
-      <div class="reel"><div class="sym cherry" id="s1"></div></div>
-      <div class="reel"><div class="sym star"   id="s2"></div></div>
-      <div class="reel"><div class="sym seven"  id="s3"></div></div>
+    <div class="reels" id="reels">
+      <div class="reel" id="r1"><div class="sym" id="s1">🍒</div></div>
+      <div class="reel" id="r2"><div class="sym" id="s2">⭐</div></div>
+      <div class="reel" id="r3"><div class="sym" id="s3">7️⃣</div></div>
     </div>
 
     <button class="btn spin" id="spinBtn" onclick="spin()">SPIN</button>
@@ -164,243 +113,306 @@
     <div class="msg" id="msg"></div>
 
     <div class="codeBox" id="codeBox">
-      Code de reclamation (valable 10 min) :<br>
-      <b id="claimCode"></b>
-      <div id="countdown" style="margin-top:8px;font-size:15px;font-weight:700;"></div>
-      <div style="margin-top:6px;font-size:13px;opacity:.9">
-        A montrer au camion (ou a donner au telephone).
-      </div>
+      <div>Code de réclamation (valable 10 min) :</div>
+      <div style="margin-top:6px"><b id="claimCode"></b></div>
+      <div id="countdown"></div>
+      <div class="tiny" style="margin-top:6px">À montrer au camion (ou à donner au téléphone).</div>
     </div>
 
     <div class="rowBtns">
-      <button class="btn linkBtn" onclick="goSite()">Decouvrir La Boite a Nems</button>
-      <button class="btn greenBtn" onclick="callPhone()">Commander (telephone)</button>
+      <button class="btn linkBtn" onclick="goSite()">Découvrir La Boîte à Nems</button>
+      <button class="btn greenBtn" onclick="callPhone()">Commander (téléphone)</button>
       <button class="btn greenBtn" onclick="goWhatsApp()">Commander (WhatsApp)</button>
     </div>
 
-    <div class="small">
-      <div class="legendTitle">Legende des gains</div>
+    <div class="legend">
+      <b>Légende des gains</b><br>
       🍒🍒🍒 = 1 boisson soft<br>
-      ⭐⭐⭐ = 1 box apero 8 pieces<br>
-      777 = 1 Pad thai traditionnel nature
+      ⭐⭐⭐ = 1 box apéro 8 pièces<br>
+      7️⃣7️⃣7️⃣ = 1 Pad thaï traditionnel nature
       <div class="hr"></div>
-      Commande minimum : 30 EUR.<br>
-      Cadeau remis uniquement lors d une commande (selon disponibilite).<br>
-      Gain valable 48h a compter du gain.<br>
-      Si tu gagnes : tu ne peux plus rejouer pendant 24h sur ce telephone.<br>
-      Un code de reclamation est genere (valable 10 min) pour limiter les profiteurs.
+      💶 Commande minimum : <b>30€</b><br>
+      🎁 Cadeau remis uniquement lors d’une commande (selon disponibilité).<br>
+      ⏳ Gain valable <b>48h</b> à compter du gain.<br>
+      ⛔ Si tu gagnes : tu ne peux plus rejouer pendant <b>24h</b> sur ce téléphone.<br>
+      🔐 Code de réclamation généré (valable <b>10 min</b>) pour limiter les profiteurs.
     </div>
   </div>
 
 <script>
-  // ===== REGLAGES =====
-  var URL_SITE = "https://la-boite-a-nems-le-muy.eatbu.com";
-  var TEL = "+33782549660";
-  var WHATSAPP = "https://wa.me/33782549660";
+/* =========================
+   RÉGLAGES
+========================= */
+const SITE_URL = "https://la-boite-a-nems-le-muy.eatbu.com";
+const PHONE_NUMBER = "+33782549660";
 
-  // Frequences de gains
-  // Soft : 1/5, Box : 1/8, Pad : 1/20 (rare)
-  var P_SOFT = 1/5;
-  var P_BOX  = 1/8;
-  var P_PAD  = 1/20;
+/* Probabilités (par tentative)
+   - soft ~ 1/5
+   - box ~ 1/8
+   - pad ~ 1/20
+   Le reste = perdu
+*/
+const P_SOFT = 1/5;
+const P_BOX  = 1/8;
+const P_PAD  = 1/20;
 
-  // Blocage 24h si gain
-  var COOLDOWN_H = 24;
+const BLOCK_AFTER_WIN_MS = 24 * 60 * 60 * 1000; // 24h
+const GAIN_VALID_MS = 48 * 60 * 60 * 1000;      // 48h
+const CLAIM_CODE_VALID_MS = 10 * 60 * 1000;     // 10 min
 
-  // Gain valable 48h
-  var GAIN_VALID_H = 48;
+const SYMS = ["🍒","⭐","7️⃣"];
 
-  // Code reclamation 10 min
-  var CLAIM_VALID_MIN = 10;
-
-  var spinBtn = document.getElementById("spinBtn");
-  var msg = document.getElementById("msg");
-  var codeBox = document.getElementById("codeBox");
-  var claimCodeEl = document.getElementById("claimCode");
-
-  var s1 = document.getElementById("s1");
-  var s2 = document.getElementById("s2");
-  var s3 = document.getElementById("s3");
-
-  function setMsg(text, cls){
-    msg.className = "msg " + (cls || "");
-    msg.textContent = text;
-  }
-
-  function goSite(){ window.open(URL_SITE, "_blank"); }
-  function callPhone(){ window.location.href = "tel:" + TEL; }
-  function goWhatsApp(){ window.open(WHATSAPP, "_blank"); }
-
-  function nowMs(){ return new Date().getTime(); }
-
-  function getJSON(key){
-    try { return JSON.parse(localStorage.getItem(key) || "null"); }
-    catch(e){ return null; }
-  }
-  function setJSON(key, val){
-    localStorage.setItem(key, JSON.stringify(val));
-  }
-
-  function hideClaim(){ codeBox.style.display = "none"; }
-  function showClaim(code){
-    claimCodeEl.textContent = code;
-    codeBox.style.display = "block";
-  }
-
-  function isBlockedAfterWin(){
-    var w = getJSON("lb_win");
-    if(!w) return false;
-    var diffH = (nowMs() - w.when) / (1000*60*60);
-    return diffH < COOLDOWN_H;
-  }
-
-  function generateClaimCode(){
-    var d = new Date();
-    var y = String(d.getFullYear()).slice(2);
-    var m = String(d.getMonth()+1).padStart(2,"0");
-    var day = String(d.getDate()).padStart(2,"0");
-    var rnd = Math.floor(1000 + Math.random()*9000);
-    return "NEMS-" + day + m + y + "-" + rnd;
-  }
-
-  function setSym(el, type){
-    el.className = "sym " + type;
-  }
-
-  function pickAnimType(){
-    var a = ["cherry","star","seven","lemon","bell","clover"];
-    return a[Math.floor(Math.random()*a.length)];
-  }
-
-  function animateReels(durationMs, tickMs, done){
-    var start = nowMs();
-    var t = setInterval(function(){
-      setSym(s1, pickAnimType());
-      setSym(s2, pickAnimType());
-      setSym(s3, pickAnimType());
-      if(nowMs() - start >= durationMs){
-        clearInterval(t);
-        done();
-      }
-    }, tickMs);
-  }
-
-  function decideOutcome(){
-    var u = Math.random();
-    if(u < P_PAD) return "PAD";
-    if(u < P_PAD + P_BOX) return "BOX";
-    if(u < P_PAD + P_BOX + P_SOFT) return "SOFT";
-    return "LOSE";
-  }
-
-  function forceLoseVisual(){
-    var a,b,c;
-    do{
-      a = pickAnimType(); b = pickAnimType(); c = pickAnimType();
-    }while(a===b && b===c);
-    setSym(s1, a); setSym(s2, b); setSym(s3, c);
-  }
-
-  function spin(){
-    hideClaim();
-
-    if(isBlockedAfterWin()){
-      setMsg("Tu as deja gagne recemment. Reessaie dans 24h.", "no");
-      return;
-    }
-
-    spinBtn.disabled = true;
-    setMsg("Ca tourne...", "");
-
-    animateReels(1000, 80, function(){
-      var outcome = decideOutcome();
-
-      if(outcome === "SOFT"){
-        setSym(s1,"cherry"); setSym(s2,"cherry"); setSym(s3,"cherry");
-        var code = generateClaimCode();
-        setJSON("lb_win", { when: nowMs(), type:"SOFT", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
-        setJSON("lb_claim", { code: code, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
-        setMsg("Gagne ! 1 boisson soft.", "ok");
-        showClaim(code);
-      }
-      else if(outcome === "BOX"){
-        setSym(s1,"star"); setSym(s2,"star"); setSym(s3,"star");
-        var code2 = generateClaimCode();
-        setJSON("lb_win", { when: nowMs(), type:"BOX", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
-        setJSON("lb_claim", { code: code2, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
-        setMsg("Gagne ! 1 box apero 8 pieces.", "ok");
-        showClaim(code2);
-      }
-      else if(outcome === "PAD"){
-        setSym(s1,"seven"); setSym(s2,"seven"); setSym(s3,"seven");
-        var code3 = generateClaimCode();
-        setJSON("lb_win", { when: nowMs(), type:"PAD", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
-        setJSON("lb_claim", { code: code3, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
-        setMsg("JACKPOT ! 1 Pad thai traditionnel nature.", "ok");
-        showClaim(code3);
-      }
-      else{
-        forceLoseVisual();
-        setMsg("Pas gagne cette fois... retente quand tu veux !", "no");
-      }
-
-      spinBtn.disabled = false;
-    });
-  }
-
-  (function init(){
-    if(isBlockedAfterWin()){
-      setMsg("Tu as deja gagne recemment. Reessaie dans 24h.", "no");
-    } else {
-      setMsg("", "");
-    startCountdown();
-    }
-  })();
-
-// ===============================
-// COMPTE À REBOURS 48H GAIN
-// ===============================
-const GAIN_DURATION = 48 * 60 * 60 * 1000; // 48h en ms
+const spinBtn = document.getElementById("spinBtn");
+const reelsEl = document.getElementById("reels");
+const msgEl = document.getElementById("msg");
+const codeBoxEl = document.getElementById("codeBox");
+const claimCodeEl = document.getElementById("claimCode");
 const countdownEl = document.getElementById("countdown");
 
-function startCountdown() {
-  const start = localStorage.getItem("gainStart");
-  if (!start) return;
+let countdownTimer = null;
 
-  const end = parseInt(start) + GAIN_DURATION;
+/* =========================
+   OUTILS UI
+========================= */
+function setMsg(text, kind){
+  msgEl.textContent = text || "";
+  msgEl.className = "msg" + (kind ? " " + kind : "");
+}
+function showCodeBox(show){
+  codeBoxEl.style.display = show ? "block" : "none";
+}
+function randInt(n){ return Math.floor(Math.random()*n); }
+function formatDHMS(ms){
+  const s = Math.max(0, Math.floor(ms/1000));
+  const d = Math.floor(s/86400);
+  const h = Math.floor((s%86400)/3600);
+  const m = Math.floor((s%3600)/60);
+  const sec = s%60;
+  const pad = (x)=> String(x).padStart(2,"0");
+  if(d>0) return ${d}j ${pad(h)}h ${pad(m)}m ${pad(sec)}s;
+  return ${pad(h)}h ${pad(m)}m ${pad(sec)}s;
+}
 
-  function update() {
+/* =========================
+   BLOQUAGE 24H APRES GAIN
+========================= */
+function isBlockedAfterWin(){
+  const t = parseInt(localStorage.getItem("lastWinAt") || "0", 10);
+  if(!t) return false;
+  return (Date.now() - t) < BLOCK_AFTER_WIN_MS;
+}
+function remainingBlockMs(){
+  const t = parseInt(localStorage.getItem("lastWinAt") || "0", 10);
+  return Math.max(0, BLOCK_AFTER_WIN_MS - (Date.now() - t));
+}
+
+/* =========================
+   COMPTE A REBOURS 48H (GAIN)
+========================= */
+function startGainCountdown(){
+  const winAt = parseInt(localStorage.getItem("lastWinAt") || "0", 10);
+  if(!winAt){ countdownEl.textContent = ""; return; }
+
+  const end = winAt + GAIN_VALID_MS;
+
+  function tick(){
     const now = Date.now();
     const diff = end - now;
-
-    if (diff <= 0) {
-      countdownEl.innerHTML = "⛔ Gain expiré";
-      localStorage.removeItem("gainStart");
+    if(diff <= 0){
+      countdownEl.textContent = "⛔ Gain expiré.";
       return;
     }
-
-    const h = Math.floor(diff / (1000 * 60 * 60));
-    const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    const s = Math.floor((diff % (1000 * 60)) / 1000);
-
-    countdownEl.innerHTML = ⏳ Gain valable encore : ${h}h ${m}m ${s}s;
+    countdownEl.textContent = "⏳ Gain valable encore : " + formatDHMS(diff);
   }
 
-  update();
-  setInterval(update, 1000);
+  tick();
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(tick, 1000);
 }
 
-// À appeler quand le client GAGNE
-function onWin() {
-  localStorage.setItem("gainStart", Date.now());
-  startCountdown();
+/* =========================
+   CODE DE RÉCLAMATION 10 MIN
+========================= */
+function generateClaimCode(){
+  const now = new Date();
+  const dd = String(now.getDate()).padStart(2,"0");
+  const mm = String(now.getMonth()+1).padStart(2,"0");
+  const yy = String(now.getFullYear()).slice(-2);
+  const rnd = Math.floor(1000 + Math.random()*9000);
+  const code = NEMS-${dd}${mm}${yy}-${rnd};
+  localStorage.setItem("claimCode", code);
+  localStorage.setItem("claimCodeAt", String(Date.now()));
+  return code;
+}
+function getClaimCodeIfValid(){
+  const code = localStorage.getItem("claimCode");
+  const t = parseInt(localStorage.getItem("claimCodeAt") || "0", 10);
+  if(!code || !t) return null;
+  if(Date.now() - t > CLAIM_CODE_VALID_MS) return null;
+  return code;
+}
+function claimCountdownText(){
+  const t = parseInt(localStorage.getItem("claimCodeAt") || "0", 10);
+  if(!t) return "";
+  const left = CLAIM_CODE_VALID_MS - (Date.now() - t);
+  if(left <= 0) return "⛔ Code expiré.";
+  return "🔐 Code valable encore : " + formatDHMS(left);
+}
+function startClaimCountdown(){
+  function tick(){
+    const code = getClaimCodeIfValid();
+    if(!code){
+      // on laisse le compte à rebours gain (48h) mais on indique code expiré
+      countdownEl.textContent = "⛔ Code expiré (demande-en un nouveau au camion).";
+      return;
+    }
+    countdownEl.textContent = claimCountdownText() + " • " + (localStorage.getItem("lastWinAt") ? "" : "");
+  }
+  tick();
+  setInterval(tick, 1000);
 }
 
-// Lancer automatiquement au chargement
-window.addEventListener("load", startCountdown);
-</script>
+/* =========================
+   SPIN (animation + résultat)
+========================= */
+function setReels(a,b,c){
+  document.getElementById("s1").textContent = a;
+  document.getElementById("s2").textContent = b;
+  document.getElementById("s3").textContent = c;
+}
 
+function animateSpin(durationMs=900){
+  return new Promise((resolve)=>{
+    reelsEl.classList.add("spinning");
+    const start = Date.now();
+    const timer = setInterval(()=>{
+      setReels(SYMS[randInt(3)], SYMS[randInt(3)], SYMS[randInt(3)]);
+      if(Date.now() - start >= durationMs){
+        clearInterval(timer);
+        reelsEl.classList.remove("spinning");
+        resolve();
+      }
+    }, 85);
+  });
+}
 
+function decideOutcome(){
+  // On force "3 identiques" seulement quand c'est gagnant
+  const r = Math.random();
+
+  if(r < P_PAD) return {sym:"7️⃣", text:"🎉 Gagné ! 1 Pad thaï traditionnel nature."};
+  if(r < P_PAD + P_BOX) return {sym:"⭐", text:"🎉 Gagné ! 1 box apéro 8 pièces."};
+  if(r < P_PAD + P_BOX + P_SOFT) return {sym:"🍒", text:"🎉 Gagné ! 1 boisson soft."};
+
+  return null; // perdu
+}
+
+async function spin(){
+  // blocage après gain 24h
+  if(isBlockedAfterWin()){
+    const left = remainingBlockMs();
+    setMsg("⛔ Tu as déjà gagné récemment. Reviens dans " + formatDHMS(left) + ".", "no");
+    return;
+  }
+
+  // on masque le code tant qu'on n'a pas gagné
+  showCodeBox(false);
+  setMsg("", "");
+
+  spinBtn.disabled = true;
+  await animateSpin(950);
+
+  const outcome = decideOutcome();
+
+  if(!outcome){
+    // perdu : on laisse une combinaison random (déjà affichée)
+    setMsg("😋 Pas gagné cette fois… retente quand tu veux !", "no");
+    spinBtn.disabled = false;
+    return;
+  }
+
+  // gagnant : on affiche 3 identiques
+  setReels(outcome.sym, outcome.sym, outcome.sym);
+
+  // enregistrement gain
+  localStorage.setItem("lastWinAt", String(Date.now()));
+
+  // code de réclamation 10 min
+  const claimCode = generateClaimCode();
+  claimCodeEl.textContent = claimCode;
+
+  setMsg(outcome.text, "ok");
+  showCodeBox(true);
+
+  // compte à rebours 48h + info code 10 min
+  startGainCountdown();
+  // et on met aussi l'info "code 10 min" dans le même emplacement (simple)
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(()=>{
+    const codeValid = getClaimCodeIfValid();
+    const gainEnd = parseInt(localStorage.getItem("lastWinAt")||"0",10) + GAIN_VALID_MS;
+    const gainLeft = gainEnd - Date.now();
+
+    const gainTxt = gainLeft > 0 ? ("⏳ Gain valable encore : " + formatDHMS(gainLeft)) : "⛔ Gain expiré.";
+    const codeTxt = codeValid ? (" • 🔐 Code : " + claimCountdownText().replace("🔐 Code valable encore : ","")) : " • ⛔ Code expiré.";
+
+    countdownEl.textContent = gainTxt + codeTxt;
+  }, 1000);
+
+  // bouton reactivé mais bloqué par la règle 24h
+  spinBtn.disabled = false;
+}
+
+/* =========================
+   BOUTONS
+========================= */
+function goSite(){ window.open(SITE_URL, "_blank"); }
+function callPhone(){ window.location.href = "tel:" + PHONE_NUMBER; }
+function goWhatsApp(){
+  const msg = encodeURIComponent("Bonjour ! Je voudrais commander (minimum 30€). J’ai aussi un code cadeau si besoin 🙂");
+  const num = PHONE_NUMBER.replace(/\+/g,"").replace(/\s/g,"");
+  window.open("https://wa.me/" + num + "?text=" + msg, "_blank");
+}
+
+/* =========================
+   INIT AU CHARGEMENT
+========================= */
+(function init(){
+  // Si déjà gagné : affiche code si encore valable + countdown 48h
+  const winAt = parseInt(localStorage.getItem("lastWinAt") || "0", 10);
+  if(winAt){
+    // afficher le compte à rebours 48h même en revenant plus tard
+    showCodeBox(true);
+
+    const code = getClaimCodeIfValid();
+    if(code){
+      claimCodeEl.textContent = code;
+      setMsg("✅ Tu as déjà gagné. Utilise ton code (10 min) + gain valable 48h.", "ok");
+    }else{
+      claimCodeEl.textContent = "—";
+      setMsg("✅ Tu as déjà gagné. Le code 10 min a expiré (on peut te le régénérer au camion).", "ok");
+    }
+
+    // lancer l'affichage combiné gain+code
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(()=>{
+      const codeValid = getClaimCodeIfValid();
+      const gainEnd = winAt + GAIN_VALID_MS;
+      const gainLeft = gainEnd - Date.now();
+
+      const gainTxt = gainLeft > 0 ? ("⏳ Gain valable encore : " + formatDHMS(gainLeft)) : "⛔ Gain expiré.";
+      const codeTxt = codeValid ? (" • 🔐 Code : " + claimCountdownText().replace("🔐 Code valable encore : ","")) : " • ⛔ Code expiré.";
+
+      countdownEl.textContent = gainTxt + codeTxt;
+    }, 1000);
+  }
+
+  // Si bloqué 24h : petit message
+  if(isBlockedAfterWin()){
+    const left = remainingBlockMs();
+    setMsg("⛔ Tu as déjà gagné récemment. Reviens dans " + formatDHMS(left) + ".", "no");
+  }
+})();
 </script>
 
 </body>
