@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>🎰 Bandit Manchot – Food Truck Asiatique</title>
+<style>
+body{font-family:Arial;text-align:center;background:#111;color:#fff}
+#r{font-size:50px;margin:20px}
+button{padding:15px 30px;font-size:20px}
+</style>
+</head>
+<body>
+
+<h1>🎰 TENTE TA CHANCE 🎰</h1>
+<p>Gains valables uniquement pour tout achat</p>
+
+<div id="r">🥟 🍜 🍰</div>
+<button onclick="s()">SPIN</button>
+<p id="m"></p>
+
+<script>
+function s(){
+let a=["🥟","🍜","🍰","🥤","❌"];
+let x=a[Math.random()*5|0],
+    y=a[Math.random()*5|0],
+    z=a[Math.random()*5|0];
+r.innerHTML=x+" "+y+" "+z;
+m.innerHTML=(x==y&&y==z&&x!="❌")
+?"🎉 GAGNÉ !<br>Boisson ou plat offert<br><b>Valable pour tout achat</b>"
+:"❌ Perdu, retente ta chance";
+}
+</script>
+
+</body>
+</html>
