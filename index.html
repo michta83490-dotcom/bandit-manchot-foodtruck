@@ -1,229 +1,147 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>La Boîte à Nems - Jeu</title>
 
   <style>
     body{
       font-family: Arial, sans-serif;
-      text-align:center;
       background:#111;
       color:#fff;
+      text-align:center;
       margin:0;
       padding:24px 12px;
     }
-    h1{font-size:38px;margin:10px 0 8px}
-    .sub{opacity:.9;margin:0 0 18px;font-size:16px}
+    h1{font-size:36px;margin:10px 0 6px}
+    .sub{opacity:.9;margin-bottom:14px}
     .card{
       max-width:520px;
       margin:0 auto;
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.12);
       border-radius:14px;
-      padding:16px 14px;
-      backdrop-filter: blur(4px);
+      padding:18px;
     }
-    #r{
-      font-size:58px;
-      margin:18px 0 10px;
-      letter-spacing:8px;
-      user-select:none;
-    }
-    .row{
-      display:flex;
-      gap:10px;
-      justify-content:center;
-      align-items:center;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
-    input{
-      padding:12px 12px;
-      border-radius:10px;
-      border:1px solid rgba(255,255,255,.2);
-      background:rgba(0,0,0,.25);
-      color:#fff;
-      font-size:16px;
-      width:min(260px, 92vw);
+    #slots{
+      font-size:42px;
+      letter-spacing:10px;
+      margin:16px 0;
+      font-weight:bold;
     }
     button{
-      padding:12px 18px;
+      padding:14px 26px;
+      font-size:18px;
       border-radius:12px;
       border:0;
       cursor:pointer;
-      font-size:18px;
-      font-weight:700;
+      font-weight:bold;
     }
-    #spinBtn{background:#fff;color:#111;min-width:140px}
-    #spinBtn:disabled{opacity:.45;cursor:not-allowed}
-    .hint{font-size:13px;opacity:.85;margin-top:8px}
-    #m{margin-top:14px;font-size:18px;min-height:28px}
-    .ok{color:#8CFF8C}
-    .bad{color:#FF8C8C}
-    .tiny{font-size:13px;opacity:.85}
-    .shake{animation:shake .35s linear 0s 2}
-    @keyframes shake{
-      0%{transform:translateX(0)}
-      25%{transform:translateX(-6px)}
-      50%{transform:translateX(6px)}
-      75%{transform:translateX(-4px)}
-      100%{transform:translateX(0)}
+    button:disabled{opacity:.5;cursor:not-allowed}
+    .primary{background:#fff;color:#111}
+    .link{
+      display:inline-block;
+      margin-top:14px;
+      padding:14px 26px;
+      background:#fff;
+      color:#111;
+      text-decoration:none;
+      border-radius:12px;
+      font-weight:bold;
     }
-    .pulse{animation:pulse .35s ease-out}
-    @keyframes pulse{
-      0%{transform:scale(1)}
-      50%{transform:scale(1.06)}
-      100%{transform:scale(1)}
-    }
+    #msg{margin-top:14px;font-size:18px;min-height:26px}
+    .ok{color:#7CFF9B}
+    .no{color:#FF7C7C}
+    .tiny{font-size:13px;opacity:.85;margin-top:10px;line-height:1.4}
   </style>
 </head>
 
 <body>
-  <h1>🎰 LA BOÎTE À NEMS 🎰</h1>
-  <p class="sub">Un petit jeu pour le plaisir… et parfois une surprise 😄</p>
 
-  <div class="card">
-    <div class="tiny">
-      🔒 Jeu réservé aux clients qui commandent (téléphone / SMS / WhatsApp / réseaux / site).
-    </div>
+<h1>LA BOITE A NEMS</h1>
+<p class="sub">Un petit jeu pour le plaisir… et parfois une surprise</p>
 
-    <div class="row" style="margin-top:12px">
-      <input id="code" placeholder="Code commande (donné par nous)" autocomplete="off" />
-      <button id="spinBtn" onclick="spin()">SPIN</button>
-    </div>
-    <div class="hint">Demande le code au moment de ta commande.</div>
+<div class="card">
+  <div id="slots">NEMS PAD THAI</div>
 
-    <div id="r">🥟 🍜 🍰</div>
-    <div id="m"></div>
-    <div class="tiny" id="stats"></div>
+  <button id="spinBtn" class="primary" onclick="spin()">SPIN</button>
+
+  <div id="msg"></div>
+
+  <a class="link" href="https://la-boite-a-nems-le-muy.eatbu.com" target="_blank">
+    Decouvrir La Boite a Nems
+  </a>
+
+  <div class="tiny">
+    1 chance sur 5 • 1 partie par jour<br>
+    Cadeau remis uniquement lors d'une commande (selon disponibilite)
   </div>
+</div>
 
 <script>
-/* =========================
-   RÉGLAGES (TOI TU CHANGES ICI)
-   ========================= */
+/* ===== REGLAGES ===== */
+var CHANCE_DE_GAGNER = 5;       // 1 chance sur 5
+var MAX_GAGNANTS_JOUR = 10;     // par appareil
 
-// 1 chance sur 5 => mets 5
-const CHANCE_DE_GAGNER = 5;
+var TEXTE_GAGNE = "GAGNE ! Un cadeau t'attend.";
+var TEXTE_PERDU = "Pas gagne aujourd'hui. Reviens demain.";
 
-// Limite de gagnants / jour (⚠️ sur cet appareil seulement, car pas de serveur)
-const MAX_GAGNANTS_PAR_JOUR_PAR_APPAREIL = 3;
+var SYMBOLS = ["NEMS","PAD","THAI","SOFT","X"];
 
-// Cadeaux (on ne dit pas lequel sur le site : juste “un cadeau”)
-const CADEAUX = ["🎁 Un cadeau"];
-
-// Code du jour (tu le changes quand tu veux)
-// Astuce : mets un code simple du style NEMS2026 ou NEMS17
-const CODE_COMMANDE = "NEMS2026";
-
-// Texte “petites lignes”
-const MENTION = "Selon disponibilité. Voir au comptoir.";
-
-// =========================
-// SONS (sans fichier, via WebAudio)
-// =========================
-function beep(freq, dur=0.08){
-  try{
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = freq;
-    g.gain.value = 0.06;
-    o.connect(g); g.connect(ctx.destination);
-    o.start();
-    setTimeout(()=>{ o.stop(); ctx.close(); }, dur*1000);
-  }catch(e){}
-}
-
-function todayKey(){
-  // format YYYY-MM-DD
+/* ===== FONCTIONS ===== */
+function today(){
   return new Date().toISOString().slice(0,10);
 }
-
-function updateStats(){
-  const d = todayKey();
-  const winners = Number(localStorage.getItem("winners-"+d) || "0");
-  const played = localStorage.getItem("played-"+d) === "1";
-  document.getElementById("stats").textContent =
-    Aujourd’hui : ${played ? "déjà joué ✅" : "pas encore joué"} • Gagnants (cet appareil) : ${winners}/${MAX_GAGNANTS_PAR_JOUR_PAR_APPAREIL};
-}
-
-updateStats();
+function key(n){ return n + "_" + today(); }
 
 function spin(){
-  const d = todayKey();
-  const msg = document.getElementById("m");
-  const r = document.getElementById("r");
-  const btn = document.getElementById("spinBtn");
+  var btn = document.getElementById("spinBtn");
+  var slots = document.getElementById("slots");
+  var msg = document.getElementById("msg");
 
-  // 0) Vérif code commande
-  const code = (document.getElementById("code").value || "").trim().toUpperCase();
-  if(code !== CODE_COMMANDE.toUpperCase()){
-    msg.className = "bad";
-    msg.innerHTML = "⛔ Code incorrect. Demande le code au moment de ta commande.";
-    r.classList.remove("pulse");
-    r.classList.add("shake");
-    beep(220,0.09); setTimeout(()=>beep(180,0.09),110);
-    setTimeout(()=>r.classList.remove("shake"), 500);
+  if(localStorage.getItem(key("played"))){
+    msg.innerHTML = "<span class='no'>Tu as deja joue aujourd'hui.</span>";
     return;
   }
 
-  // 1) 1 seule partie / jour (par appareil)
-  if(localStorage.getItem("played-"+d) === "1"){
-    msg.className = "ok";
-    msg.innerHTML = "✅ Tu as déjà joué aujourd’hui. <br><span class='tiny'>Reviens demain 😉</span>";
-    updateStats();
+  var wins = parseInt(localStorage.getItem(key("wins")) || "0",10);
+  if(wins >= MAX_GAGNANTS_JOUR){
+    localStorage.setItem(key("played"),"1");
+    msg.innerHTML = "<span class='no'>Limite de gains atteinte aujourd'hui.</span>";
     return;
   }
 
-  // 2) limite gagnants / jour (par appareil)
-  const winnersKey = "winners-"+d;
-  let winners = Number(localStorage.getItem(winnersKey) || "0");
-
-  // 3) animation “bandit” (visuel)
   btn.disabled = true;
-  let ticks = 18;
-  const symbols = ["🥟","🍜","🍰","❌","🥢","🧋"];
-  const timer = setInterval(()=>{
-    const a = symbols[Math.floor(Math.random()*symbols.length)];
-    const b = symbols[Math.floor(Math.random()*symbols.length)];
-    const c = symbols[Math.floor(Math.random()*symbols.length)];
-    r.textContent = ${a} ${b} ${c};
-    beep(720,0.03);
-    ticks--;
-    if(ticks<=0){
-      clearInterval(timer);
+  msg.innerHTML = "";
 
-      // 4) tirage “malin” : chance sur CHANCE_DE_GAGNER, mais si quota gagnants atteint => perdu
-      const gagneTirage = (Math.floor(Math.random()*CHANCE_DE_GAGNER) === 0);
-      const gagne = gagneTirage && (winners < MAX_GAGNANTS_PAR_JOUR_PAR_APPAREIL);
-
-      localStorage.setItem("played-"+d, "1");
-
-      if(gagne){
-        winners++;
-        localStorage.setItem(winnersKey, String(winners));
-        const cadeau = CADEAUX[Math.floor(Math.random()*CADEAUX.length)];
-        msg.className = "ok";
-        msg.innerHTML =🎉 GAGNÉ ! <br><b>${cadeau}</b><br><span class="tiny">${MENTION}</span>`;
-        r.classList.add("pulse");
-        beep(880,0.08); setTimeout(()=>beep(990,0.08),110); setTimeout(()=>beep(1180,0.10),220);
-      }else{
-        msg.className = "bad";
-        msg.innerHTML = ❌ Pas de chance aujourd’hui.<br><span class="tiny">Reviens demain 😄</span>;
-        beep(260,0.09); setTimeout(()=>beep(220,0.09),110);
-      }
-
-      btn.disabled = false;
-      updateStats();
+  var t = 0;
+  var anim = setInterval(function(){
+    var a = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+    var b = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+    var c = SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)];
+    slots.textContent = a + " " + b + " " + c;
+    t++;
+    if(t>=14){
+      clearInterval(anim);
+      finish(wins);
     }
-  }, 85);
+  },80);
+
+  function finish(w){
+    localStorage.setItem(key("played"),"1");
+    var win = Math.floor(Math.random()*CHANCE_DE_GAGNER) === 0;
+    if(win){
+      localStorage.setItem(key("wins"), w+1);
+      slots.textContent = "WIN WIN WIN";
+      msg.innerHTML = "<span class='ok'>" + TEXTE_GAGNE + "</span>";
+    }else{
+      msg.innerHTML = "<span class='no'>" + TEXTE_PERDU + "</span>";
+    }
+    btn.disabled = false;
+  }
 }
 </script>
 
 </body>
 </html>
-
