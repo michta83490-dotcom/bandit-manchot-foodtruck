@@ -19,17 +19,45 @@ button{padding:15px 30px;font-size:20px}
 <p id="m"></p>
 
 <script>
-function s(){
-let a=["🥟","❌","❌","🥤","❌"];
-let x=a[Math.random()*5|0],
-    y=a[Math.random()*5|0],
-    z=a[Math.random()*5|0];
-r.innerHTML=x+" "+y+" "+z;
-m.innerHTML=(x==y&&y==z&&x!="❌")
-?"🎉 GAGNÉ !<br><b> 1 Boisson soft</b> ou <b>1 box apéro 8 pièces</b><br><small>Selon disponibilité * Voir au comptoir</small>"
-:"❌ Perdu, retente ta chance";
-}
-</script>
+<script>
+  // Réglages (tu peux changer ici)
+  const CHANCE_DE_GAGNER = 10; // 10 = 1 chance sur 5
+  const CADEAUX = [
+    "🥤 1 boisson soft",
+    "🎁 1 box apéro 8 pièces"
+  ];
 
-</body>
-</html>
+  function s() {
+    // 1) Bloque si déjà gagné aujourd’hui
+    const aujourdHui = new Date().toISOString().slice(0, 10); // ex: 2026-01-17
+    const cle = "gagne_" + aujourdHui;
+
+    if (localStorage.getItem(cle) === "oui") {
+      document.getElementById("m").innerHTML =
+        "✅ Tu as déjà gagné aujourd’hui.<br><small>Reviens demain 😉</small>";
+      return;
+    }
+
+    // 2) Animation “bandit” (juste pour le visuel)
+    const a = ["🥟","🥤","🎁","❌"];
+    const x = a[Math.floor(Math.random()*a.length)];
+    const y = a[Math.floor(Math.random()*a.length)];
+    const z = a[Math.floor(Math.random()*a.length)];
+    document.getElementById("r").innerHTML = x + " " + y + " " + z;
+
+    // 3) Tirage: 1 chance sur CHANCE_DE_GAGNER
+    const gagne = (Math.floor(Math.random() * CHANCE_DE_GAGNER) === 0);
+
+    if (gagne) {
+      const cadeau = CADEAUX[Math.floor(Math.random() * CADEAUX.length)];
+      document.getElementById("m").innerHTML =
+        "🎉 <b>GAGNÉ !</b><br><b>" + cadeau + "</b><br><small>Selon disponibilité • Voir au comptoir</small>";
+
+      // Marque “déjà gagné aujourd’hui”
+      localStorage.setItem(cle, "oui");
+    } else {
+      document.getElementById("m").innerHTML =
+        "❌ Perdu… retente ta chance !";
+    }
+  }
+</script>
