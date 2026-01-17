@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>La Boîte à Nems - Jeu</title>
+  <title>La Boîte à Nems - Bandit Manchot</title>
   <style>
     body{
       font-family: Arial, sans-serif;
@@ -15,8 +15,9 @@
     }
     h1{ margin:10px 0 6px; letter-spacing:1px; }
     .sub{ opacity:.9; margin:0 0 18px; }
+
     .card{
-      max-width:680px;
+      max-width:720px;
       margin:0 auto;
       background:rgba(255,255,255,.06);
       border:1px solid rgba(255,255,255,.12);
@@ -24,24 +25,59 @@
       padding:18px 14px;
       box-shadow:0 10px 30px rgba(0,0,0,.35);
     }
+
     .reels{
       display:flex;
       justify-content:center;
       gap:14px;
-      margin:10px 0 14px;
+      margin:12px 0 14px;
     }
+
     .reel{
       width:92px;
       height:92px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:56px;
       background:rgba(0,0,0,.35);
       border:1px solid rgba(255,255,255,.18);
       border-radius:14px;
       user-select:none;
     }
+
+    .sym{
+      width:72px; height:72px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:46px;
+      border-radius:12px;
+      font-weight:900;
+    }
+
+    .cherry{ background:rgba(255,0,0,.12); }
+    .cherry::before{ content:"\1F352"; } /* 🍒 */
+
+    .star{ background:rgba(255,215,0,.12); }
+    .star::before{ content:"\2B50"; } /* ⭐ */
+
+    .seven{
+      background:rgba(0,140,255,.18);
+      color:#dff2ff;
+      font-size:44px;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.12);
+    }
+    .seven::before{ content:"7"; }
+
+    .lemon{ background:rgba(255,255,0,.10); }
+    .lemon::before{ content:"\1F34B"; } /* 🍋 */
+
+    .bell{ background:rgba(255,255,255,.08); }
+    .bell::before{ content:"\1F514"; } /* 🔔 */
+
+    .clover{ background:rgba(0,255,0,.10); }
+    .clover::before{ content:"\1F340"; } /* 🍀 */
+
     .btn{
       border:0;
       padding:12px 18px;
@@ -52,10 +88,20 @@
     .spin{
       background:#f4c542;
       color:#111;
-      font-weight:800;
+      font-weight:900;
       min-width:140px;
     }
     .spin:disabled{ opacity:.55; cursor:not-allowed; }
+
+    .msg{
+      margin-top:14px;
+      font-size:18px;
+      min-height:28px;
+      font-weight:800;
+    }
+    .ok{ color:#64f58d; }
+    .no{ color:#ff6b6b; }
+
     .rowBtns{
       display:flex;
       flex-wrap:wrap;
@@ -66,37 +112,27 @@
     .linkBtn{
       background:#e9e9e9;
       color:#111;
-      font-weight:700;
+      font-weight:800;
     }
     .greenBtn{
       background:#29c24a;
       color:#0b1a0f;
-      font-weight:800;
+      font-weight:900;
     }
-    .msg{
-      margin-top:14px;
-      font-size:18px;
-      min-height:28px;
-      font-weight:700;
-    }
-    .msg.ok{ color:#64f58d; }
-    .msg.no{ color:#ff6b6b; }
+
     .small{
       margin-top:12px;
       font-size:14px;
       opacity:.92;
       text-align:left;
-      max-width:600px;
+      max-width:620px;
       margin-left:auto;
       margin-right:auto;
       line-height:1.35;
     }
-    .legendTitle{ font-weight:800; margin-top:6px; }
-    .hr{
-      height:1px;
-      background:rgba(255,255,255,.15);
-      margin:10px 0;
-    }
+    .legendTitle{ font-weight:900; margin-top:6px; }
+    .hr{ height:1px; background:rgba(255,255,255,.15); margin:10px 0; }
+
     .codeBox{
       margin-top:10px;
       display:none;
@@ -104,7 +140,7 @@
       border-radius:12px;
       background:rgba(0,0,0,.35);
       border:1px dashed rgba(255,255,255,.25);
-      max-width:420px;
+      max-width:440px;
       margin-left:auto;
       margin-right:auto;
     }
@@ -113,14 +149,14 @@
 </head>
 
 <body>
-  <h1>🎰 LA BOÎTE À NEMS 🎰</h1>
-  <div class="sub">Joue pour le fun… et parfois un cadeau 😋</div>
+  <h1>LA BOITE A NEMS</h1>
+  <div class="sub">Joue pour le fun... et parfois un cadeau</div>
 
   <div class="card">
     <div class="reels">
-      <div class="reel" id="r1">🍒</div>
-      <div class="reel" id="r2">⭐</div>
-      <div class="reel" id="r3">7️⃣</div>
+      <div class="reel"><div class="sym cherry" id="s1"></div></div>
+      <div class="reel"><div class="sym star"   id="s2"></div></div>
+      <div class="reel"><div class="sym seven"  id="s3"></div></div>
     </div>
 
     <button class="btn spin" id="spinBtn" onclick="spin()">SPIN</button>
@@ -128,73 +164,74 @@
     <div class="msg" id="msg"></div>
 
     <div class="codeBox" id="codeBox">
-      🎁 Code de réclamation (valable 10 min) :<br>
+      Code de reclamation (valable 10 min) :<br>
       <b id="claimCode"></b>
       <div style="margin-top:6px;font-size:13px;opacity:.9">
-        À montrer au camion (ou à donner au téléphone).
+        A montrer au camion (ou a donner au telephone).
       </div>
     </div>
 
     <div class="rowBtns">
-      <button class="btn linkBtn" onclick="goSite()">Découvrir La Boîte à Nems</button>
-      <button class="btn greenBtn" onclick="callPhone()">Commander (téléphone)</button>
+      <button class="btn linkBtn" onclick="goSite()">Decouvrir La Boite a Nems</button>
+      <button class="btn greenBtn" onclick="callPhone()">Commander (telephone)</button>
       <button class="btn greenBtn" onclick="goWhatsApp()">Commander (WhatsApp)</button>
     </div>
 
     <div class="small">
-      <div class="legendTitle">Légende des gains</div>
+      <div class="legendTitle">Legende des gains</div>
       🍒🍒🍒 = 1 boisson soft<br>
-      ⭐⭐⭐ = 1 box apéro 8 pièces<br>
-      7️⃣7️⃣7️⃣ = 1 Pad thaï traditionnel nature
+      ⭐⭐⭐ = 1 box apero 8 pieces<br>
+      777 = 1 Pad thai traditionnel nature
       <div class="hr"></div>
-      ✅ Commande minimum : 30€.<br>
-      ✅ Cadeau remis uniquement lors d’une commande (selon disponibilité).<br>
-      ✅ Gain valable 48h à compter du gain.<br>
-      ✅ Si tu gagnes : tu ne peux plus rejouer pendant 24h sur ce téléphone.<br>
-      ✅ Un code de réclamation est généré (valable 10 min) pour limiter les profiteurs.
+      Commande minimum : 30 EUR.<br>
+      Cadeau remis uniquement lors d une commande (selon disponibilite).<br>
+      Gain valable 48h a compter du gain.<br>
+      Si tu gagnes : tu ne peux plus rejouer pendant 24h sur ce telephone.<br>
+      Un code de reclamation est genere (valable 10 min) pour limiter les profiteurs.
     </div>
   </div>
 
 <script>
-  // ====== REGLAGES ======
-  const URL_SITE = "https://la-boite-a-nems-le-muy.eatbu.com";
-  const TEL = "+33782549660";
-  const WHATSAPP = "https://wa.me/33782549660";
+  // ===== REGLAGES =====
+  var URL_SITE = "https://la-boite-a-nems-le-muy.eatbu.com";
+  var TEL = "+33782549660";
+  var WHATSAPP = "https://wa.me/33782549660";
 
-  // Probabilités: 1/5, 1/8, 1/20
-  const P_SOFT = 1/5;     // 🍒🍒🍒
-  const P_BOX  = 1/8;     // ⭐⭐⭐
-  const P_PAD  = 1/20;    // 7️⃣7️⃣7️⃣
+  // Frequences de gains
+  // Soft : 1/5, Box : 1/8, Pad : 1/20 (rare)
+  var P_SOFT = 1/5;
+  var P_BOX  = 1/8;
+  var P_PAD  = 1/20;
 
-  // Cooldown après gain
-  const COOLDOWN_H = 24;
-  // Validité gain
-  const GAIN_VALID_H = 48;
-  // Code réclamation valide 10 min
-  const CLAIM_VALID_MIN = 10;
+  // Blocage 24h si gain
+  var COOLDOWN_H = 24;
 
-  const SYM = ["🍒","⭐","7️⃣","🍋","🍀","🔔"]; // pour l'animation
+  // Gain valable 48h
+  var GAIN_VALID_H = 48;
 
-  const r1 = document.getElementById("r1");
-  const r2 = document.getElementById("r2");
-  const r3 = document.getElementById("r3");
-  const msg = document.getElementById("msg");
-  const spinBtn = document.getElementById("spinBtn");
-  const codeBox = document.getElementById("codeBox");
-  const claimCodeEl = document.getElementById("claimCode");
+  // Code reclamation 10 min
+  var CLAIM_VALID_MIN = 10;
 
-  function nowMs(){ return Date.now(); }
+  var spinBtn = document.getElementById("spinBtn");
+  var msg = document.getElementById("msg");
+  var codeBox = document.getElementById("codeBox");
+  var claimCodeEl = document.getElementById("claimCode");
 
-  function setMsg(text, type){
+  var s1 = document.getElementById("s1");
+  var s2 = document.getElementById("s2");
+  var s3 = document.getElementById("s3");
+
+  function setMsg(text, cls){
+    msg.className = "msg " + (cls || "");
     msg.textContent = text;
-    msg.className = "msg " + (type || "");
   }
 
   function goSite(){ window.open(URL_SITE, "_blank"); }
   function callPhone(){ window.location.href = "tel:" + TEL; }
   function goWhatsApp(){ window.open(WHATSAPP, "_blank"); }
 
-  // Stockage local
+  function nowMs(){ return new Date().getTime(); }
+
   function getJSON(key){
     try { return JSON.parse(localStorage.getItem(key) || "null"); }
     catch(e){ return null; }
@@ -203,124 +240,116 @@
     localStorage.setItem(key, JSON.stringify(val));
   }
 
-  function isBlockedAfterWin(){
-    const w = getJSON("lb_win");
-    if(!w) return false;
-    const diffH = (nowMs() - w.when) / (1000*60*60);
-    return diffH < COOLDOWN_H;
-  }
-
-  function generateClaimCode(){
-    // simple, lisible, et change tout le temps
-    const d = new Date();
-    const y = String(d.getFullYear()).slice(2);
-    const m = String(d.getMonth()+1).padStart(2,"0");
-    const day = String(d.getDate()).padStart(2,"0");
-    const rnd = Math.floor(1000 + Math.random()*9000); // 4 chiffres
-    return NEMS-${day}${m}${y}-${rnd};
-  }
-
-  function saveClaim(code){
-    setJSON("lb_claim", { code, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
-  }
-
+  function hideClaim(){ codeBox.style.display = "none"; }
   function showClaim(code){
     claimCodeEl.textContent = code;
     codeBox.style.display = "block";
   }
 
-  function hideClaim(){
-    codeBox.style.display = "none";
+  function isBlockedAfterWin(){
+    var w = getJSON("lb_win");
+    if(!w) return false;
+    var diffH = (nowMs() - w.when) / (1000*60*60);
+    return diffH < COOLDOWN_H;
   }
 
-  function pick(arr){
-    return arr[Math.floor(Math.random()*arr.length)];
+  function generateClaimCode(){
+    var d = new Date();
+    var y = String(d.getFullYear()).slice(2);
+    var m = String(d.getMonth()+1).padStart(2,"0");
+    var day = String(d.getDate()).padStart(2,"0");
+    var rnd = Math.floor(1000 + Math.random()*9000);
+    return "NEMS-" + day + m + y + "-" + rnd;
   }
 
-  function animateReels(durationMs, tickMs){
-    return new Promise(resolve=>{
-      const start = nowMs();
-      const t = setInterval(()=>{
-        r1.textContent = pick(SYM);
-        r2.textContent = pick(SYM);
-        r3.textContent = pick(SYM);
-        if(nowMs() - start >= durationMs){
-          clearInterval(t);
-          resolve();
-        }
-      }, tickMs);
-    });
+  function setSym(el, type){
+    el.className = "sym " + type;
+  }
+
+  function pickAnimType(){
+    var a = ["cherry","star","seven","lemon","bell","clover"];
+    return a[Math.floor(Math.random()*a.length)];
+  }
+
+  function animateReels(durationMs, tickMs, done){
+    var start = nowMs();
+    var t = setInterval(function(){
+      setSym(s1, pickAnimType());
+      setSym(s2, pickAnimType());
+      setSym(s3, pickAnimType());
+      if(nowMs() - start >= durationMs){
+        clearInterval(t);
+        done();
+      }
+    }, tickMs);
   }
 
   function decideOutcome(){
-    // On tire un nombre, puis on mappe aux proba dans l’ordre rare -> commun
-    const u = Math.random();
-    if(u < P_PAD) return "PAD";                 // 1/20
-    if(u < P_PAD + P_BOX) return "BOX";         // 1/8
-    if(u < P_PAD + P_BOX + P_SOFT) return "SOFT"; // 1/5
+    var u = Math.random();
+    if(u < P_PAD) return "PAD";
+    if(u < P_PAD + P_BOX) return "BOX";
+    if(u < P_PAD + P_BOX + P_SOFT) return "SOFT";
     return "LOSE";
   }
 
-  async function spin(){
+  function forceLoseVisual(){
+    var a,b,c;
+    do{
+      a = pickAnimType(); b = pickAnimType(); c = pickAnimType();
+    }while(a===b && b===c);
+    setSym(s1, a); setSym(s2, b); setSym(s3, c);
+  }
+
+  function spin(){
     hideClaim();
 
     if(isBlockedAfterWin()){
-      setMsg("⛔ Tu as déjà gagné récemment. Réessaie dans 24h 😉", "no");
+      setMsg("Tu as deja gagne recemment. Reessaie dans 24h.", "no");
       return;
     }
 
     spinBtn.disabled = true;
-    setMsg("🎰 Ça tourne…", "");
+    setMsg("Ca tourne...", "");
 
-    // animation casino
-    await animateReels(1000, 80);
+    animateReels(1000, 80, function(){
+      var outcome = decideOutcome();
 
-    const outcome = decideOutcome();
+      if(outcome === "SOFT"){
+        setSym(s1,"cherry"); setSym(s2,"cherry"); setSym(s3,"cherry");
+        var code = generateClaimCode();
+        setJSON("lb_win", { when: nowMs(), type:"SOFT", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
+        setJSON("lb_claim", { code: code, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
+        setMsg("Gagne ! 1 boisson soft.", "ok");
+        showClaim(code);
+      }
+      else if(outcome === "BOX"){
+        setSym(s1,"star"); setSym(s2,"star"); setSym(s3,"star");
+        var code2 = generateClaimCode();
+        setJSON("lb_win", { when: nowMs(), type:"BOX", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
+        setJSON("lb_claim", { code: code2, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
+        setMsg("Gagne ! 1 box apero 8 pieces.", "ok");
+        showClaim(code2);
+      }
+      else if(outcome === "PAD"){
+        setSym(s1,"seven"); setSym(s2,"seven"); setSym(s3,"seven");
+        var code3 = generateClaimCode();
+        setJSON("lb_win", { when: nowMs(), type:"PAD", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
+        setJSON("lb_claim", { code: code3, exp: nowMs() + CLAIM_VALID_MIN*60*1000 });
+        setMsg("JACKPOT ! 1 Pad thai traditionnel nature.", "ok");
+        showClaim(code3);
+      }
+      else{
+        forceLoseVisual();
+        setMsg("Pas gagne cette fois... retente quand tu veux !", "no");
+      }
 
-    // Fixe l’affichage final selon le résultat
-    if(outcome === "SOFT"){
-      r1.textContent = "🍒"; r2.textContent = "🍒"; r3.textContent = "🍒";
-      const code = generateClaimCode();
-      saveClaim(code);
-      setJSON("lb_win", { when: nowMs(), type:"SOFT", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
-      setMsg("✅ Gagné ! 1 boisson soft 🎉", "ok");
-      showClaim(code);
-    }
-    else if(outcome === "BOX"){
-      r1.textContent = "⭐"; r2.textContent = "⭐"; r3.textContent = "⭐";
-      const code = generateClaimCode();
-      saveClaim(code);
-      setJSON("lb_win", { when: nowMs(), type:"BOX", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
-      setMsg("✅ Gagné ! 1 box apéro 8 pièces 🎉", "ok");
-      showClaim(code);
-    }
-    else if(outcome === "PAD"){
-      r1.textContent = "7️⃣"; r2.textContent = "7️⃣"; r3.textContent = "7️⃣";
-      const code = generateClaimCode();
-      saveClaim(code);
-      setJSON("lb_win", { when: nowMs(), type:"PAD", validUntil: nowMs() + GAIN_VALID_H*60*60*1000 });
-      setMsg("🏆 JACKPOT ! 1 Pad thaï traditionnel nature 🎉", "ok");
-      showClaim(code);
-    }
-    else{
-      // perdu: on affiche un “vrai” résultat non gagnant
-      // on s'assure que ce n'est PAS 3 symboles identiques (sinon confusion)
-      let a,b,c;
-      do{
-        a = pick(SYM); b = pick(SYM); c = pick(SYM);
-      }while(a===b && b===c);
-      r1.textContent = a; r2.textContent = b; r3.textContent = c;
-
-      setMsg("😅 Pas gagné cette fois… retente quand tu veux !", "no");
-    }
-
-    spinBtn.disabled = false;
+      spinBtn.disabled = false;
+    });
   }
 
-  // Au chargement: si gagnant récent, on affiche l’info
   (function init(){
     if(isBlockedAfterWin()){
-      setMsg("⛔ Tu as gagné récemment. Réessaie dans 24h 😉", "no");
+      setMsg("Tu as deja gagne recemment. Reessaie dans 24h.", "no");
     } else {
       setMsg("", "");
     }
