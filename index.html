@@ -1,64 +1,88 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>🎰 La Boîte à Nems – Jeu</title>
 
 <style>
-  body{
-    font-family: Arial, sans-serif;
-    background:#111;
-    color:#fff;
-    text-align:center;
-    padding:20px;
-  }
-  .machine{
-    max-width:440px;
-    margin:0 auto;
-    padding:20px;
-    background:rgba(255,255,255,0.08);
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,0.12);
-  }
-  .reels{
-    font-size:64px;
-    letter-spacing:18px;
-    margin:18px 0 10px;
-    user-select:none;
-  }
-  button{
-    font-size:20px;
-    padding:12px 30px;
-    border:none;
-    border-radius:10px;
-    cursor:pointer;
-  }
-  button:disabled{ opacity:0.6; cursor:not-allowed; }
-  .spin{ background:#ffd700; }
-  .site{ margin-top:14px; background:#fff; }
-  .msg{ margin-top:14px; font-size:18px; min-height:52px; }
-  .small{
-    font-size:12px;
-    opacity:0.85;
-    margin-top:10px;
-    line-height:1.4;
-  }
+body{
+  font-family: Arial, sans-serif;
+  background:#111;
+  color:#fff;
+  text-align:center;
+  padding:20px;
+}
+.machine{
+  max-width:460px;
+  margin:0 auto;
+  padding:20px;
+  background:rgba(255,255,255,0.08);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,0.12);
+}
+.reels{
+  font-size:64px;
+  letter-spacing:18px;
+  margin:18px 0;
+  user-select:none;
+}
+button{
+  font-size:18px;
+  padding:12px 18px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+button:disabled{
+  opacity:0.5;
+  cursor:not-allowed;
+}
+.spin{ background:#ffd700; }
+.site{ background:#fff; }
+.order{ background:#25D366; color:#111; }
+.msg{
+  margin-top:14px;
+  font-size:18px;
+  min-height:60px;
+}
+.small{
+  font-size:12px;
+  opacity:0.85;
+  margin-top:10px;
+  line-height:1.4;
+}
+.row{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
 </style>
 </head>
 
 <body>
+
 <h1>🎰 LA BOÎTE À NEMS</h1>
-<p>Un petit jeu pour le plaisir… et parfois une surprise 😋</p>
+<p>Découvre notre univers… puis tente ta chance 🎁</p>
 
 <div class="machine">
   <div id="reels" class="reels">🍒 ⭐ 7️⃣</div>
 
-  <button id="spinBtn" class="spin" onclick="spin()">SPIN</button>
+  <div class="small">
+    👉 Clique d’abord sur “Découvrir La Boîte à Nems”, puis reviens ici pour jouer
+  </div>
+
+  <button id="spinBtn" class="spin" onclick="spin()" disabled>SPIN</button>
 
   <div id="msg" class="msg"></div>
 
-  <button class="site" onclick="goSite()">Découvrir La Boîte à Nems</button>
+  <div class="row">
+    <button class="site" onclick="goSite()">Découvrir La Boîte à Nems</button>
+    <button class="order" onclick="orderNow()">Commander maintenant</button>
+  </div>
 
   <div class="small">
     1 partie par jour<br>
@@ -68,93 +92,80 @@
 
 <script>
 /* =========================
-   RÉGLAGES (TU PEUX CHANGER)
+   RÉGLAGES
    ========================= */
 const SITE_URL = "https://la-boite-a-nems-le-muy.eatbu.com";
+const WHATSAPP_NUMBER = "33782549660";
+const WHATSAPP_TEXT = "Bonjour ! Je souhaite commander chez La Boîte à Nems.";
 
-// Chances de gain (approx) :
-const CHANCE_SOFT = 5;   // 1 fois sur 5  -> 🍒🍒🍒
-const CHANCE_BOX  = 8;   // 1 fois sur 8  -> ⭐⭐⭐
-const CHANCE_PAD  = 20;  // 1 fois sur 20 -> 7️⃣7️⃣7️⃣
+// Chances
+const CHANCE_SOFT = 5;   // 🍒🍒🍒
+const CHANCE_BOX  = 8;   // ⭐⭐⭐
+const CHANCE_PAD  = 20;  // 7️⃣7️⃣7️⃣
 
-// 1 partie par jour (par appareil)
-const PLAY_KEY = "boite_a_nems_played_" + new Date().toISOString().slice(0,10);
+const TODAY = new Date().toISOString().slice(0,10);
+const PLAY_KEY = "played_" + TODAY;
 
 /* =========================
-   MACHINE
+   ELEMENTS
    ========================= */
-const reelsEl = document.getElementById("reels");
-const msgEl   = document.getElementById("msg");
-const btnEl   = document.getElementById("spinBtn");
+const reels = document.getElementById("reels");
+const msg   = document.getElementById("msg");
+const spinBtn = document.getElementById("spinBtn");
 
-// Symboles pour l’animation (visuel)
 const animSymbols = ["🍒","⭐","7️⃣","🍋","🍀","🔔"];
 
-function alreadyPlayedToday(){
+/* =========================
+   LOGIQUE
+   ========================= */
+function goSite(){
+  window.open(SITE_URL, "_blank");
+  localStorage.setItem("visitedSite","yes");
+  spinBtn.disabled = false;
+}
+
+if(localStorage.getItem("visitedSite") === "yes"){
+  spinBtn.disabled = false;
+}
+
+function orderNow(){
+  const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(WHATSAPP_TEXT);
+  window.open(url, "_blank");
+}
+
+function alreadyPlayed(){
   return localStorage.getItem(PLAY_KEY) === "yes";
 }
 
-function setPlayedToday(){
+function markPlayed(){
   localStorage.setItem(PLAY_KEY, "yes");
 }
 
-function goSite(){
-  window.open(SITE_URL, "_blank");
-}
-
-// Petite animation “ça tourne”
-function animateOnce(){
-  const a = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-  const b = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-  const c = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-  reelsEl.textContent = ${a} ${b} ${c};
-}
-
-// Tirage avec probabilités DIFFERENTES
 function pickOutcome(){
-  // Probabilité globale = P(PAD) + P(BOX) + P(SOFT), le reste = perdu
-  const pPad  = 1 / CHANCE_PAD;   // 0.05
-  const pBox  = 1 / CHANCE_BOX;   // 0.125
-  const pSoft = 1 / CHANCE_SOFT;  // 0.2
-
   const r = Math.random();
-
-  if(r < pPad) return "PAD";                     // 7️⃣7️⃣7️⃣
-  if(r < pPad + pBox) return "BOX";              // ⭐⭐⭐
-  if(r < pPad + pBox + pSoft) return "SOFT";     // 🍒🍒🍒
+  if(r < 1/CHANCE_PAD) return "PAD";
+  if(r < 1/CHANCE_PAD + 1/CHANCE_BOX) return "BOX";
+  if(r < 1/CHANCE_PAD + 1/CHANCE_BOX + 1/CHANCE_SOFT) return "SOFT";
   return "LOSE";
 }
 
-function loseRollNoJackpot(){
-  // Choisit au hasard mais interdit les 3 jackpots
-  while(true){
-    const a = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-    const b = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-    const c = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-    const s = ${a}${b}${c};
-    if(s === "🍒🍒🍒") continue;
-    if(s === "⭐⭐⭐") continue;
-    if(s === "7️⃣7️⃣7️⃣") continue;
-    return [a,b,c];
-  }
-}
-
-function lockUI(locked){
-  btnEl.disabled = locked;
+function animate(){
+  const a = animSymbols[Math.floor(Math.random()*animSymbols.length)];
+  const b = animSymbols[Math.floor(Math.random()*animSymbols.length)];
+  const c = animSymbols[Math.floor(Math.random()*animSymbols.length)];
+  reels.textContent = a + " " + b + " " + c;
 }
 
 function spin(){
-  if(alreadyPlayedToday()){
-    msgEl.innerHTML = "❌ Tu as déjà joué aujourd’hui. Reviens demain 🙂";
+  if(alreadyPlayed()){
+    msg.innerHTML = "⛔ Tu as déjà joué aujourd’hui. Reviens demain 🙂";
     return;
   }
 
-  lockUI(true);
-  msgEl.textContent = "";
+  spinBtn.disabled = true;
+  msg.textContent = "";
 
-  // Animation 1 seconde
-  const start = Date.now();
-  const timer = setInterval(animateOnce, 90);
+  const timer = setInterval(animate, 90);
 
   setTimeout(() => {
     clearInterval(timer);
@@ -162,29 +173,25 @@ function spin(){
     const outcome = pickOutcome();
 
     if(outcome === "PAD"){
-      reelsEl.textContent = "7️⃣ 7️⃣ 7️⃣";
-      msgEl.innerHTML = "🎉 JACKPOT !<br><b>1 Pad thaï traditionnel nature</b><br><small>À récupérer au camion (selon disponibilité)</small>";
+      reels.textContent = "7️⃣ 7️⃣ 7️⃣";
+      msg.innerHTML = "🎉 JACKPOT !<br><b>1 Pad thaï traditionnel nature</b>";
     } else if(outcome === "BOX"){
-      reelsEl.textContent = "⭐ ⭐ ⭐";
-      msgEl.innerHTML = "🎁 BRAVO !<br><b>1 box apéro 8 pièces</b><br><small>À récupérer au camion (selon disponibilité)</small>";
+      reels.textContent = "⭐ ⭐ ⭐";
+      msg.innerHTML = "🎁 GAGNÉ !<br><b>1 box apéro 8 pièces</b>";
     } else if(outcome === "SOFT"){
-      reelsEl.textContent = "🍒 🍒 🍒";
-      msgEl.innerHTML = "🥤 GAGNÉ !<br><b>1 boisson soft</b><br><small>À récupérer au camion (selon disponibilité)</small>";
+      reels.textContent = "🍒 🍒 🍒";
+      msg.innerHTML = "🥤 GAGNÉ !<br><b>1 boisson soft</b>";
     } else {
-      const [a,b,c] = loseRollNoJackpot();
-      reelsEl.textContent = ${a} ${b} ${c};
-      msgEl.innerHTML = "😢 Perdu… retente ta chance demain !";
+      animate();
+      msg.innerHTML = "😢 Perdu… retente demain !";
     }
 
-    setPlayedToday();
-    lockUI(false);
-
-  }, 1100);
+    markPlayed();
+  }, 1200);
 }
 
-// Si déjà joué -> message direct
-if(alreadyPlayedToday()){
-  msgEl.innerHTML = "❌ Tu as déjà joué aujourd’hui. Reviens demain 🙂";
+if(alreadyPlayed()){
+  msg.innerHTML = "⛔ Tu as déjà joué aujourd’hui. Reviens demain 🙂";
 }
 </script>
 
