@@ -1,63 +1,229 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>🎰 Bandit Manchot – Food Truck Asiatique</title>
-<style>
-body{font-family:Arial;text-align:center;background:#111;color:#fff}
-#r{font-size:50px;margin:20px}
-button{padding:15px 30px;font-size:20px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>La Boîte à Nems - Jeu</title>
+
+  <style>
+    body{
+      font-family: Arial, sans-serif;
+      text-align:center;
+      background:#111;
+      color:#fff;
+      margin:0;
+      padding:24px 12px;
+    }
+    h1{font-size:38px;margin:10px 0 8px}
+    .sub{opacity:.9;margin:0 0 18px;font-size:16px}
+    .card{
+      max-width:520px;
+      margin:0 auto;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;
+      padding:16px 14px;
+      backdrop-filter: blur(4px);
+    }
+    #r{
+      font-size:58px;
+      margin:18px 0 10px;
+      letter-spacing:8px;
+      user-select:none;
+    }
+    .row{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    input{
+      padding:12px 12px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.2);
+      background:rgba(0,0,0,.25);
+      color:#fff;
+      font-size:16px;
+      width:min(260px, 92vw);
+    }
+    button{
+      padding:12px 18px;
+      border-radius:12px;
+      border:0;
+      cursor:pointer;
+      font-size:18px;
+      font-weight:700;
+    }
+    #spinBtn{background:#fff;color:#111;min-width:140px}
+    #spinBtn:disabled{opacity:.45;cursor:not-allowed}
+    .hint{font-size:13px;opacity:.85;margin-top:8px}
+    #m{margin-top:14px;font-size:18px;min-height:28px}
+    .ok{color:#8CFF8C}
+    .bad{color:#FF8C8C}
+    .tiny{font-size:13px;opacity:.85}
+    .shake{animation:shake .35s linear 0s 2}
+    @keyframes shake{
+      0%{transform:translateX(0)}
+      25%{transform:translateX(-6px)}
+      50%{transform:translateX(6px)}
+      75%{transform:translateX(-4px)}
+      100%{transform:translateX(0)}
+    }
+    .pulse{animation:pulse .35s ease-out}
+    @keyframes pulse{
+      0%{transform:scale(1)}
+      50%{transform:scale(1.06)}
+      100%{transform:scale(1)}
+    }
+  </style>
 </head>
+
 <body>
+  <h1>🎰 LA BOÎTE À NEMS 🎰</h1>
+  <p class="sub">Un petit jeu pour le plaisir… et parfois une surprise 😄</p>
 
-<h1>🎰 LA BOITE A NEMS 🎰</h1>
-<p>Un petit jeu pour le plaisir... et parfois une surprise</p>
+  <div class="card">
+    <div class="tiny">
+      🔒 Jeu réservé aux clients qui commandent (téléphone / SMS / WhatsApp / réseaux / site).
+    </div>
 
-<div id="r">🥟 🍜 🍰</div>
-<button onclick="s()">SPIN</button>
-<p id="m"></p>
+    <div class="row" style="margin-top:12px">
+      <input id="code" placeholder="Code commande (donné par nous)" autocomplete="off" />
+      <button id="spinBtn" onclick="spin()">SPIN</button>
+    </div>
+    <div class="hint">Demande le code au moment de ta commande.</div>
 
+    <div id="r">🥟 🍜 🍰</div>
+    <div id="m"></div>
+    <div class="tiny" id="stats"></div>
+  </div>
 
 <script>
-  // Réglages (tu peux changer ici)
-  const CHANCE_DE_GAGNER = 5; // 10 = 1 chance sur 5
-  const CADEAUX = [
-    
-    "🎁 1 cadeau"
-  ];
+/* =========================
+   RÉGLAGES (TOI TU CHANGES ICI)
+   ========================= */
 
-  function s() {
-    // 1) Bloque si déjà gagné aujourd’hui
-    const aujourdHui = new Date().toISOString().slice(0, 10); // ex: 2026-01-17
-    const cle = "gagne_" + aujourdHui;
+// 1 chance sur 5 => mets 5
+const CHANCE_DE_GAGNER = 5;
 
-    if (localStorage.getItem(cle) === "oui") {
-      document.getElementById("m").innerHTML =
-        "✅ Tu as déjà gagné aujourd’hui.<br><small>Reviens demain 😉</small>";
-      return;
-    }
+// Limite de gagnants / jour (⚠️ sur cet appareil seulement, car pas de serveur)
+const MAX_GAGNANTS_PAR_JOUR_PAR_APPAREIL = 3;
 
-    // 2) Animation “bandit” (juste pour le visuel)
-    const a = ["🥟","🥤","🎁","❌"];
-    const x = a[Math.floor(Math.random()*a.length)];
-    const y = a[Math.floor(Math.random()*a.length)];
-    const z = a[Math.floor(Math.random()*a.length)];
-    document.getElementById("r").innerHTML = x + " " + y + " " + z;
+// Cadeaux (on ne dit pas lequel sur le site : juste “un cadeau”)
+const CADEAUX = ["🎁 Un cadeau"];
 
-    // 3) Tirage: 1 chance sur CHANCE_DE_GAGNER
-    const gagne = (Math.floor(Math.random() * CHANCE_DE_GAGNER) === 0);
+// Code du jour (tu le changes quand tu veux)
+// Astuce : mets un code simple du style NEMS2026 ou NEMS17
+const CODE_COMMANDE = "NEMS2026";
 
-    if (gagne) {
-      const cadeau = CADEAUX[Math.floor(Math.random() * CADEAUX.length)];
-      document.getElementById("m").innerHTML =
-        "🎉 <b>GAGNÉ !</b><br><b>" + cadeau + "</b><br><small>Selon disponibilité • Voir au comptoir</small>";
+// Texte “petites lignes”
+const MENTION = "Selon disponibilité. Voir au comptoir.";
 
-      // Marque “déjà gagné aujourd’hui”
-      localStorage.setItem(cle, "oui");
-    } else {
-      document.getElementById("m").innerHTML =
-        "❌ Perdu… retente ta chance !";
-    }
+// =========================
+// SONS (sans fichier, via WebAudio)
+// =========================
+function beep(freq, dur=0.08){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = "sine";
+    o.frequency.value = freq;
+    g.gain.value = 0.06;
+    o.connect(g); g.connect(ctx.destination);
+    o.start();
+    setTimeout(()=>{ o.stop(); ctx.close(); }, dur*1000);
+  }catch(e){}
+}
+
+function todayKey(){
+  // format YYYY-MM-DD
+  return new Date().toISOString().slice(0,10);
+}
+
+function updateStats(){
+  const d = todayKey();
+  const winners = Number(localStorage.getItem("winners-"+d) || "0");
+  const played = localStorage.getItem("played-"+d) === "1";
+  document.getElementById("stats").textContent =
+    Aujourd’hui : ${played ? "déjà joué ✅" : "pas encore joué"} • Gagnants (cet appareil) : ${winners}/${MAX_GAGNANTS_PAR_JOUR_PAR_APPAREIL};
+}
+
+updateStats();
+
+function spin(){
+  const d = todayKey();
+  const msg = document.getElementById("m");
+  const r = document.getElementById("r");
+  const btn = document.getElementById("spinBtn");
+
+  // 0) Vérif code commande
+  const code = (document.getElementById("code").value || "").trim().toUpperCase();
+  if(code !== CODE_COMMANDE.toUpperCase()){
+    msg.className = "bad";
+    msg.innerHTML = "⛔ Code incorrect. Demande le code au moment de ta commande.";
+    r.classList.remove("pulse");
+    r.classList.add("shake");
+    beep(220,0.09); setTimeout(()=>beep(180,0.09),110);
+    setTimeout(()=>r.classList.remove("shake"), 500);
+    return;
   }
+
+  // 1) 1 seule partie / jour (par appareil)
+  if(localStorage.getItem("played-"+d) === "1"){
+    msg.className = "ok";
+    msg.innerHTML = "✅ Tu as déjà joué aujourd’hui. <br><span class='tiny'>Reviens demain 😉</span>";
+    updateStats();
+    return;
+  }
+
+  // 2) limite gagnants / jour (par appareil)
+  const winnersKey = "winners-"+d;
+  let winners = Number(localStorage.getItem(winnersKey) || "0");
+
+  // 3) animation “bandit” (visuel)
+  btn.disabled = true;
+  let ticks = 18;
+  const symbols = ["🥟","🍜","🍰","❌","🥢","🧋"];
+  const timer = setInterval(()=>{
+    const a = symbols[Math.floor(Math.random()*symbols.length)];
+    const b = symbols[Math.floor(Math.random()*symbols.length)];
+    const c = symbols[Math.floor(Math.random()*symbols.length)];
+    r.textContent = ${a} ${b} ${c};
+    beep(720,0.03);
+    ticks--;
+    if(ticks<=0){
+      clearInterval(timer);
+
+      // 4) tirage “malin” : chance sur CHANCE_DE_GAGNER, mais si quota gagnants atteint => perdu
+      const gagneTirage = (Math.floor(Math.random()*CHANCE_DE_GAGNER) === 0);
+      const gagne = gagneTirage && (winners < MAX_GAGNANTS_PAR_JOUR_PAR_APPAREIL);
+
+      localStorage.setItem("played-"+d, "1");
+
+      if(gagne){
+        winners++;
+        localStorage.setItem(winnersKey, String(winners));
+        const cadeau = CADEAUX[Math.floor(Math.random()*CADEAUX.length)];
+        msg.className = "ok";
+        msg.innerHTML =🎉 GAGNÉ ! <br><b>${cadeau}</b><br><span class="tiny">${MENTION}</span>`;
+        r.classList.add("pulse");
+        beep(880,0.08); setTimeout(()=>beep(990,0.08),110); setTimeout(()=>beep(1180,0.10),220);
+      }else{
+        msg.className = "bad";
+        msg.innerHTML = ❌ Pas de chance aujourd’hui.<br><span class="tiny">Reviens demain 😄</span>;
+        beep(260,0.09); setTimeout(()=>beep(220,0.09),110);
+      }
+
+      btn.disabled = false;
+      updateStats();
+    }
+  }, 85);
+}
 </script>
+
+</body>
+</html>
+
