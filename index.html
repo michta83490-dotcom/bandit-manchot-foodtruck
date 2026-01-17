@@ -25,7 +25,6 @@ body{
   font-size:64px;
   letter-spacing:18px;
   margin:18px 0;
-  user-select:none;
 }
 button{
   font-size:18px;
@@ -35,30 +34,32 @@ button{
   cursor:pointer;
   font-weight:bold;
 }
-button:disabled{
-  opacity:0.5;
-  cursor:not-allowed;
-}
 .spin{ background:#ffd700; }
 .site{ background:#fff; }
 .order{ background:#25D366; color:#111; }
+
 .msg{
   margin-top:14px;
   font-size:18px;
   min-height:60px;
 }
+.legend{
+  font-size:14px;
+  opacity:0.9;
+  margin-top:10px;
+  line-height:1.5;
+}
 .small{
   font-size:12px;
-  opacity:0.85;
-  margin-top:10px;
-  line-height:1.4;
+  opacity:0.8;
+  margin-top:12px;
 }
 .row{
   display:flex;
   gap:10px;
   justify-content:center;
   flex-wrap:wrap;
-  margin-top:10px;
+  margin-top:12px;
 }
 </style>
 </head>
@@ -66,18 +67,20 @@ button:disabled{
 <body>
 
 <h1>🎰 LA BOÎTE À NEMS</h1>
-<p>Découvre notre univers… puis tente ta chance 🎁</p>
+<p>Un petit jeu pour le plaisir… et parfois une surprise 🎁</p>
 
 <div class="machine">
   <div id="reels" class="reels">🍒 ⭐ 7️⃣</div>
 
-  <div class="small">
-    👉 Clique d’abord sur “Découvrir La Boîte à Nems”, puis reviens ici pour jouer
-  </div>
-
-  <button id="spinBtn" class="spin" onclick="spin()" disabled>SPIN</button>
+  <button id="spinBtn" class="spin" onclick="spin()">SPIN</button>
 
   <div id="msg" class="msg"></div>
+
+  <div class="legend">
+    🍒🍒🍒 = 1 boisson soft<br>
+    ⭐⭐⭐ = 1 box apéro (8 pièces)<br>
+    7️⃣7️⃣7️⃣ = 1 Pad thaï traditionnel nature
+  </div>
 
   <div class="row">
     <button class="site" onclick="goSite()">Découvrir La Boîte à Nems</button>
@@ -98,102 +101,18 @@ const SITE_URL = "https://la-boite-a-nems-le-muy.eatbu.com";
 const WHATSAPP_NUMBER = "33782549660";
 const WHATSAPP_TEXT = "Bonjour ! Je souhaite commander chez La Boîte à Nems.";
 
-// Chances
-const CHANCE_SOFT = 5;   // 🍒🍒🍒
-const CHANCE_BOX  = 8;   // ⭐⭐⭐
-const CHANCE_PAD  = 20;  // 7️⃣7️⃣7️⃣
+const CHANCE_SOFT = 5;   // 1 / 5
+const CHANCE_BOX  = 8;   // 1 / 8
+const CHANCE_PAD  = 20;  // 1 / 20
 
 const TODAY = new Date().toISOString().slice(0,10);
 const PLAY_KEY = "played_" + TODAY;
 
-/* =========================
-   ELEMENTS
-   ========================= */
 const reels = document.getElementById("reels");
 const msg   = document.getElementById("msg");
 const spinBtn = document.getElementById("spinBtn");
 
-const animSymbols = ["🍒","⭐","7️⃣","🍋","🍀","🔔"];
+const symbols = ["🍒","⭐","7️⃣","🍋","🔔","🍀"];
 
 /* =========================
-   LOGIQUE
-   ========================= */
-function goSite(){
-  window.open(SITE_URL, "_blank");
-  localStorage.setItem("visitedSite","yes");
-  spinBtn.disabled = false;
-}
-
-if(localStorage.getItem("visitedSite") === "yes"){
-  spinBtn.disabled = false;
-}
-
-function orderNow(){
-  const url = "https://wa.me/" + WHATSAPP_NUMBER + "?text=" + encodeURIComponent(WHATSAPP_TEXT);
-  window.open(url, "_blank");
-}
-
-function alreadyPlayed(){
-  return localStorage.getItem(PLAY_KEY) === "yes";
-}
-
-function markPlayed(){
-  localStorage.setItem(PLAY_KEY, "yes");
-}
-
-function pickOutcome(){
-  const r = Math.random();
-  if(r < 1/CHANCE_PAD) return "PAD";
-  if(r < 1/CHANCE_PAD + 1/CHANCE_BOX) return "BOX";
-  if(r < 1/CHANCE_PAD + 1/CHANCE_BOX + 1/CHANCE_SOFT) return "SOFT";
-  return "LOSE";
-}
-
-function animate(){
-  const a = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-  const b = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-  const c = animSymbols[Math.floor(Math.random()*animSymbols.length)];
-  reels.textContent = a + " " + b + " " + c;
-}
-
-function spin(){
-  if(alreadyPlayed()){
-    msg.innerHTML = "⛔ Tu as déjà joué aujourd’hui. Reviens demain 🙂";
-    return;
-  }
-
-  spinBtn.disabled = true;
-  msg.textContent = "";
-
-  const timer = setInterval(animate, 90);
-
-  setTimeout(() => {
-    clearInterval(timer);
-
-    const outcome = pickOutcome();
-
-    if(outcome === "PAD"){
-      reels.textContent = "7️⃣ 7️⃣ 7️⃣";
-      msg.innerHTML = "🎉 JACKPOT !<br><b>1 Pad thaï traditionnel nature</b>";
-    } else if(outcome === "BOX"){
-      reels.textContent = "⭐ ⭐ ⭐";
-      msg.innerHTML = "🎁 GAGNÉ !<br><b>1 box apéro 8 pièces</b>";
-    } else if(outcome === "SOFT"){
-      reels.textContent = "🍒 🍒 🍒";
-      msg.innerHTML = "🥤 GAGNÉ !<br><b>1 boisson soft</b>";
-    } else {
-      animate();
-      msg.innerHTML = "😢 Perdu… retente demain !";
-    }
-
-    markPlayed();
-  }, 1200);
-}
-
-if(alreadyPlayed()){
-  msg.innerHTML = "⛔ Tu as déjà joué aujourd’hui. Reviens demain 🙂";
-}
-</script>
-
-</body>
-</html>
+   FON
