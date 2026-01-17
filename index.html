@@ -11,8 +11,8 @@ button{padding:15px 30px;font-size:20px}
 </head>
 <body>
 
-<h1>🎰 TENTE TA CHANCE 🎰</h1>
-<p>Gains valables uniquement pour tout achat</p>
+<h1>🎰 LA BOITE A NEMS 🎰</h1>
+<p>Un petit jeu pour le plaisir... et parfois une surprise</p>
 
 <div id="r">🥟 🍜 🍰</div>
 <button onclick="s()">SPIN</button>
@@ -20,13 +20,13 @@ button{padding:15px 30px;font-size:20px}
 
 <script>
 function s(){
-let a=["🥟","🍜","🍰","🥤","❌"];
+let a=["🥟","❌","❌","🥤","❌"];
 let x=a[Math.random()*5|0],
     y=a[Math.random()*5|0],
     z=a[Math.random()*5|0];
 r.innerHTML=x+" "+y+" "+z;
 m.innerHTML=(x==y&&y==z&&x!="❌")
-?"🎉 GAGNÉ !<br>Boisson ou plat offert<br><b>Valable pour tout achat</b>"
+?"🎉 GAGNÉ !<br><b> 1 Boisson soft</b> ou <b>1 box apéro 8 pièces</b><br><small>Selon disponibilité * Voir au comptoir</small>"
 :"❌ Perdu, retente ta chance";
 }
 </script>
