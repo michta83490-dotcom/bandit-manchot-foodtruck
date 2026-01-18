@@ -193,9 +193,20 @@
     </div>
 
     <div class="rowBtns">
-      <button class="btn linkBtn" onclick="goSite()">Decouvrir La Boite a Nems</button>
-      <button class="btn greenBtn" onclick="callPhone()">Commander (telephone)</button>
-      <button class="btn greenBtn" onclick="goWhatsApp()">Commander (WhatsApp)</button>
+      <button class="btn linkBtn"
+        onclick="gtag('event','click_site',{event_category:'navigation'}); goSite();">
+  Découvrir La Boite a Nems
+</button>
+
+<button class="btn greenBtn"
+        onclick="gtag('event','click_telephone',{event_category:'contact'}); callPhone();">
+  Commander (telephone)
+</button>
+
+<button class="btn greenBtn"
+        onclick="gtag('event','click_whatsapp',{event_category:'contact'}); goWhatsApp();">
+  Commander (WhatsApp)
+</button>
     </div>
 
     <div class="legend">
